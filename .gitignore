@@ -2,3 +2,5 @@ _config
 pythonProject
 **/__pycache__
 .venv
+admin.proto
+status.proto

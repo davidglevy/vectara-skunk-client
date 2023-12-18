@@ -1,11 +1,13 @@
 import logging
 import requests
 import json
+from dataclasses import asdict
 from vectara.authn import BaseAuthUtil
-from vectara.domain import ListCorpusResponse, Corpus
+from vectara.domain import ListCorpusResponse, Corpus, ReadCorpusRequest, ReadCorpusResponse, CorpusInfo
 from dacite import from_dict
-from typing import Type, Any, List
+from typing import Type, Any, List, TypeVar
 
+T = TypeVar("T")
 
 class AdminService():
 
@@ -13,7 +15,7 @@ class AdminService():
         self.logger = logging.getLogger(__class__.__name__)
         self.auth_util = auth_util
 
-    def _make_request(self, operation: str, payload: dict, to_class):
+    def _make_request(self, operation: str, payload, to_class: Type[T], method="POST") -> T:
         """
 
         :param operation: the REST operation to perform.
@@ -30,7 +32,7 @@ class AdminService():
         self.logger.info(f"URL for operation {operation} is: {url}")
         self.logger.info(f"Payload is: {json.dumps(payload)}")
 
-        response = requests.request("POST", url, headers=headers, data=payload)
+        response = requests.request(method, url, headers=headers, data=payload)
 
         if response.status_code == 200:
             return from_dict(to_class, json.loads(response.text))
@@ -52,3 +54,12 @@ class AdminService():
         response.corpus.sort(key=lambda x: x.name)
 
         return response.corpus
+
+    def read_corpus(self, corpus_id: int) -> CorpusInfo:
+        request = ReadCorpusRequest([corpus_id], True, True, True, True, True, True)
+
+        payload = json.dumps(asdict(request))
+
+        response = self._make_request(f"read-corpus", payload, ReadCorpusResponse)
+
+        return response.corpora[0]

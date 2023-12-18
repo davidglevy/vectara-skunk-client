@@ -31,5 +31,11 @@ class AdminServiceIntegrationTest(unittest.TestCase):
         for corpus in corpora:
             print(f"We found id [{corpus.id}] with name [{corpus.name}]")
 
+    #@unittest.skip("This method appears to have not been implemented")
+    def testReadCorpus(self):
+
+        corpus = self.adminService.read_corpus(6)
+
+        print("We found corpus [{corpus.}]")
 
 
