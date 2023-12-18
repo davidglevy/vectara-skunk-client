@@ -1,3 +1,4 @@
 _config
 pythonProject
 **/__pycache__
+.venv
