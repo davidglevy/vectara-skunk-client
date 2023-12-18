@@ -23,6 +23,12 @@ class OAuthUtil(BaseAuthUtil):
     def __init__(self, auth_url: str, app_client_id: str, app_client_secret: str, customer_id: str):
         self.logger = logging.getLogger(str(__class__))
 
+        if not customer_id:
+            # Putting this in as I'm surprised we also need a customer Id on the header.
+            raise TypeError("You must include a customer Id, apparently?")
+        else:
+            self.customer_id = customer_id
+
         # Validate
         if not auth_url and not customer_id:
             raise TypeError("You must either put in a client Id or OAuth authentication URL")
@@ -31,12 +37,14 @@ class OAuthUtil(BaseAuthUtil):
         if not app_client_id:
             raise TypeError("You must include an application client Id")
 
-        if auth_url == "":
-            self.logger.info(f"No Authentication URL Provided for OAuth2, creating default from customer id [{customer_id}]")
-            self.auth_url = (DEFAULT_OAUTH2_URL).format(customer_id=customer_id)
-        else:
+
+
+        if auth_url:
             self.logger.info(f"Using provided OAuth2 URL [{auth_url}]")
             self.auth_url = auth_url
+        else:
+            self.logger.info(f"No Authentication URL Provided for OAuth2, creating default from customer id [{customer_id}]")
+            self.auth_url = (DEFAULT_OAUTH2_URL).format(customer_id=customer_id)
         self.logger.info(f"OAuth2 URL is [{self.auth_url}]")
 
         self.app_client_id = app_client_id
@@ -46,8 +54,9 @@ class OAuthUtil(BaseAuthUtil):
         if (self.app_client_secret):
             self.logger.info(f"OAuth Application Client Secret: {self.app_client_secret}")
 
-
-        self.token = None
+        self.expiry_ts = None
+        self.expiry_txt = None
+        self.access_token = None
 
 
     def authenticate(self):
@@ -68,14 +77,19 @@ class OAuthUtil(BaseAuthUtil):
     def getToken(self):
         """Get the current token or get a new one if expired"""
         now = datetime.datetime.now()
-        self.logging.info(f"Current timestamp {now}")
-        self.logging.info(f"Expiry            {self.expiry_ts}")
+        self.logger.info(f"Current timestamp {now}")
 
+        if self.expiry_ts:
+            self.logger.info(f"Expiry            {self.expiry_ts}")
+
+        if not self.access_token:
+            self.logger.info("First time requesting token, authenticating")
+            self.authenticate()
         if (now > (self.expiry_ts - datetime.timedelta(seconds=5))):
-            self.logging.info("Token expiry within 5 seconds, refreshing")
+            self.logger.info("Token expiry within 5 seconds, refreshing")
             self.authenticate()
         else:
-            self.logging.info(f"Already authenticated with non-expired token, expiry is [{self.expires_at}]")
+            self.logger.info(f"Already authenticated with non-expired token, expiry is [{self.expires_at}]")
 
         return self.access_token
 
@@ -83,6 +97,7 @@ class OAuthUtil(BaseAuthUtil):
         token = self.getToken()
 
         return {
+            "Customer-Id": self.customer_id,
             "Authorization": f"Bearer {token}"
         }
 

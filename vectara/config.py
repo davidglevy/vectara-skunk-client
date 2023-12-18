@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from dacite import from_dict
+from dacite import from_dict, Config, UnexpectedDataError
 from typing import Optional, Union
 import json
 
@@ -27,7 +27,7 @@ class ApiKeyAuthConfig(BaseAuthConfig):
 class OAuth2AuthConfig(BaseAuthConfig):
     auth_url: Optional[str]
     app_id: str
-    app_api_secret: str
+    app_client_secret: str
 
     def getAuthType(self) -> str:
         return "OAuth2"
@@ -38,6 +38,9 @@ class OAuth2AuthConfig(BaseAuthConfig):
 
 @dataclass
 class ClientConfig:
+    """
+    Wrapper for all configuration needed to work with Vectara.
+    """
 
     customer_id: str
     auth: Union[ApiKeyAuthConfig, OAuth2AuthConfig]
@@ -48,16 +51,25 @@ class ClientConfig:
         if not self.customer_id:
             errors.append(f"In [{__class__.__name__}] You must define the field [customer_id]")
 
+
+
         return errors
 
 def _tryCreateAuth(data_class, input):
     try:
-        from_dict(data_class=data_class, data=input)
+        from_dict(data_class=data_class, data=input, config=Config(strict=True))
         return True, None
     except Exception as e:
         return False, str(e)
 
 def loadConfig(config: str) -> ClientConfig:
+    """
+    Loads our configuration from JSON onto our data classes.
+
+    :param config: the input configuration in JSON format.
+    :return: the parsed client configuration1
+    :raises TypeError: if the configuration cannot be parsed correctly
+    """
     logger.info(f"Loading config from {config}")
 
     config_dict = json.loads(config)
@@ -80,5 +92,8 @@ def loadConfig(config: str) -> ClientConfig:
 
 
     logger.info("Parsing config")
-    return from_dict(data_class=ClientConfig, data=config_dict)
+    try:
+        return from_dict(data_class=ClientConfig, data=config_dict, config=Config(strict=True))
+    except UnexpectedDataError as e:
+        raise TypeError(f"Unable to build configuration: {e}") from None
 
