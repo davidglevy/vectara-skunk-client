@@ -23,11 +23,7 @@ class AdminServiceIntegrationTest(unittest.TestCase):
         self.adminService = client.admin_service
 
     def testListCorpora(self):
-
         corpora = self.adminService.list_corpora()
-
-
-
         for corpus in corpora:
             print(f"We found id [{corpus.id}] with name [{corpus.name}]")
 

@@ -147,9 +147,12 @@ class StatusCode(Enum):
 
 @dataclass
 class Status:
-    code: str | StatusCode
+    """
+    Including these as optional because file upload response has this as an empty object on success
+    """
+    code: Optional[str | StatusCode]
     #code_enum: Optional[StatusCode]
-    statusDetail: str
+    statusDetail: Optional[str]
 
     def __post_init__(self):
         """

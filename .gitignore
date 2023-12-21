@@ -4,3 +4,6 @@ pythonProject
 .venv
 admin.proto
 status.proto
+.vectara_test_config
+.idea
+test.db

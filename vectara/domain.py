@@ -17,6 +17,7 @@ class FilterAttributeType(Enum):
     FILTER_ATTRIBUTE_TYPE__REAL_LIST = 20
     FILTER_ATTRIBUTE_TYPE__TEXT = 25
     FILTER_ATTRIBUTE_TYPE__TEXT_LIST = 30
+    FILTER_ATTRIBUTE_TYPE__BOOLEAN = 35
 
 class FilterAttributeLevel(Enum):
     FILTER_ATTRIBUTE_LEVEL__UNDEFINED = 0
@@ -33,27 +34,37 @@ class Dimension:
 @dataclass
 class FilterAttribute:
     name: str
-    description: str
+    description: Optional[str]
     indexed: bool
-    type: FilterAttributeType
-    level: FilterAttributeLevel
+    type: str | FilterAttributeType
+    level: str | FilterAttributeLevel
+
+    def __post_init__(self):
+        """
+        Hacky way to transform the str back into the enum value.
+        """
+        if self.type and isinstance(self.type, str):
+            self.type = FilterAttributeType[self.type]
+        if self.level and isinstance(self.level, str):
+            self.level = FilterAttributeLevel[self.level]
+
 
 @dataclass
 class Corpus:
-    id: int
+    id: Optional[int]
     name: str
-    description: str
-    dtProvision: str
-    enabled: bool
-    swapQenc: bool
-    swapIenc: bool
-    textless: bool
-    encrypted: bool
-    encoderId: str
-    metadataMaxBytes: int
-    faissIndexType: str
-    customDimensions: List[Dimension]
-    filterAttributes: List[FilterAttribute]
+    description: Optional[str]
+    dtProvision: Optional[str]
+    enabled: Optional[bool]
+    swapQenc: Optional[bool]
+    swapIenc: Optional[bool]
+    textless: Optional[bool]
+    encrypted: Optional[bool]
+    encoderId: Optional[str]
+    metadataMaxBytes: Optional[int]
+    faissIndexType: Optional[str]
+    customDimensions: Optional[List[Dimension]]
+    filterAttributes: Optional[List[FilterAttribute]]
 
 
 @dataclass
@@ -94,6 +105,7 @@ class ApiKey:
     tsEnd: Optional[str]
     status: str | ApiKeyStatus
 
+
     def __post_init__(self):
         """
         Hacky way to transform the str back into the enum value.
@@ -113,9 +125,87 @@ class CorpusInfo:
     recall: Optional[CorpusRecall]
     recallStatus: Optional[Status]
     apiKey: List[ApiKey]
-
+    # Test from here
+    apiKeyStatus: Optional[Status]
+    customDimension: List[Dimension]
+    customDimensionStatus: Optional[Status]
+    filterAttribute: List[FilterAttribute]
+    filterAttributeStatus: Optional[Status]
 
 @dataclass
 class ReadCorpusResponse:
     corpora: List[CorpusInfo]
 
+@dataclass
+class CreateCorpusRequest:
+    corpus: Corpus
+
+@dataclass
+class CreateCorpusResponse:
+    corpusId: int
+    status: Status
+
+@dataclass
+class DeleteCorpusRequest:
+    customerId: int
+    corpusId: int
+
+@dataclass
+class DeleteCorpusResponse:
+    status: Status
+
+@dataclass
+class StorageQuota:
+    numChars: str
+    numMetadataChars: str
+
+@dataclass
+class CustomDimension:
+    name: str
+    value: float
+
+
+@dataclass
+class Section:
+    id: int
+    title: Optional[str]
+    text: str
+    metadataJson: Optional[str]
+    customDims: Optional[List[CustomDimension]]
+    section: Optional[List['Section']]
+
+@dataclass
+class Document:
+    documentId: str
+    title: Optional[str]
+    description: Optional[str]
+    metadata_json: Optional[str]
+    customDims: Optional[List[CustomDimension]]
+    section: List[Section]
+
+@dataclass
+class UploadDocumentResponseInner:
+    status: Optional[Status]
+    quotaConsumed: StorageQuota
+
+    def __post_init__(self):
+        """
+        Funky behavior to clear the status if it doesn't have a code
+        """
+        if not self.status.code:
+            self.__setattr__("status", None)
+
+
+@dataclass
+class UploadDocumentResponse:
+    response: UploadDocumentResponseInner
+    document: Document
+
+
+
+
+#@dataclass
+#class IndexDocumentRequest:
+#    customerId: int
+#    corpusId: int
+#    document: Document

@@ -21,7 +21,7 @@ class BaseAuthUtil(ABC):
 class OAuthUtil(BaseAuthUtil):
 
     def __init__(self, auth_url: str, app_client_id: str, app_client_secret: str, customer_id: str):
-        self.logger = logging.getLogger(str(__class__))
+        self.logger = logging.getLogger(str(__class__.__name__))
 
         if not customer_id:
             # Putting this in as I'm surprised we also need a customer Id on the header.
