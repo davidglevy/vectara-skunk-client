@@ -7,11 +7,10 @@ from vectara.enums import ApiKeyStatus, ApiKeyType
 
 from dataclasses import dataclass
 
-
-
 """
 Definitions taken from admin.proto in platform.
 """
+
 
 class FilterAttributeType(Enum):
     FILTER_ATTRIBUTE_TYPE__UNDEFINED = 0
@@ -23,10 +22,12 @@ class FilterAttributeType(Enum):
     FILTER_ATTRIBUTE_TYPE__TEXT_LIST = 30
     FILTER_ATTRIBUTE_TYPE__BOOLEAN = 35
 
+
 class FilterAttributeLevel(Enum):
     FILTER_ATTRIBUTE_LEVEL__UNDEFINED = 0
-    FILTER_ATTRIBUTE_LEVEL__DOCUMENT = 5 # Document - level attribute
-    FILTER_ATTRIBUTE_LEVEL__DOCUMENT_PART = 10 # Part - level attribute
+    FILTER_ATTRIBUTE_LEVEL__DOCUMENT = 5  # Document - level attribute
+    FILTER_ATTRIBUTE_LEVEL__DOCUMENT_PART = 10  # Part - level attribute
+
 
 @dataclass
 class Dimension:
@@ -34,6 +35,7 @@ class Dimension:
     description: str
     serving_default: str
     indexing_default: str
+
 
 @dataclass
 class FilterAttribute:
@@ -73,7 +75,6 @@ class Corpus:
 
 @dataclass
 class ListCorpusResponse:
-
     corpus: List[Corpus]
 
 
@@ -90,14 +91,16 @@ class ReadCorpusRequest:
 
 @dataclass
 class CorpusSize:
-    epochSecs: str # Different from proto: epoch_secs : int
-    size: str # Different from proto: size : int
+    epochSecs: str  # Different from proto: epoch_secs : int
+    size: str  # Different from proto: size : int
+
 
 @dataclass
 class CorpusRecall:
     epochSecs: str
     recall: str
     sampleSize: str
+
 
 @dataclass
 class ApiKey:
@@ -108,7 +111,6 @@ class ApiKey:
     tsStart: str
     tsEnd: Optional[str]
     status: str | ApiKeyStatus
-
 
     def __post_init__(self):
         """
@@ -123,9 +125,9 @@ class ApiKey:
 @dataclass
 class CorpusInfo:
     corpus: Corpus
-    corpusStatus: Status # Different from proto: corpus_status
+    corpusStatus: Status  # Different from proto: corpus_status
     size: CorpusSize
-    sizeStatus : Status # Different from proto: size_status
+    sizeStatus: Status  # Different from proto: size_status
     recall: Optional[CorpusRecall]
     recallStatus: Optional[Status]
     apiKey: List[ApiKey]
@@ -136,32 +138,39 @@ class CorpusInfo:
     filterAttribute: List[FilterAttribute]
     filterAttributeStatus: Optional[Status]
 
+
 @dataclass
 class ReadCorpusResponse:
     corpora: List[CorpusInfo]
 
+
 @dataclass
 class CreateCorpusRequest:
     corpus: Corpus
+
 
 @dataclass
 class CreateCorpusResponse:
     corpusId: int
     status: Status
 
+
 @dataclass
 class DeleteCorpusRequest:
     customerId: int
     corpusId: int
 
+
 @dataclass
 class DeleteCorpusResponse:
     status: Status
+
 
 @dataclass
 class StorageQuota:
     numChars: str
     numMetadataChars: str
+
 
 @dataclass
 class CustomDimension:
@@ -178,6 +187,7 @@ class Section:
     customDims: Optional[List[CustomDimension]]
     section: Optional[List['Section']]
 
+
 @dataclass
 class Document:
     documentId: str
@@ -186,6 +196,7 @@ class Document:
     metadata_json: Optional[str]
     customDims: Optional[List[CustomDimension]]
     section: List[Section]
+
 
 @dataclass
 class UploadDocumentResponseInner:
@@ -205,6 +216,7 @@ class UploadDocumentResponse:
     response: UploadDocumentResponseInner
     document: Document
 
+
 @dataclass
 class QueryContextConfig:
     charsBefore: Optional[int]
@@ -214,25 +226,28 @@ class QueryContextConfig:
     startTag: Optional[str]
     endTag: Optional[str]
 
+
 @dataclass
 class QueryDim:
     name: str
     weight: int
 
+
 class Semantics(Enum):
     DEFAULT = 0
     QUERY = 1
-    RESPONSE =2
+    RESPONSE = 2
 
 
 @dataclass
 class LinearInterpolation:
     _lambda: float  # Unfortunately Python dataclass attributes cannot be reserved words.
 
+
 @dataclass
 class CorpusKey:
-    customerId: Optional[int]
     corpusId: int
+    customerId: Optional[int]
     semantics: Optional[str | Semantics]
     dim: Optional[List[CustomDimension]]
     metadataFilter: Optional[str]
@@ -244,6 +259,7 @@ class CorpusKey:
         """
         if self.semantics and isinstance(self.semantics, str):
             self.semantics = Semantics[self.semantics]
+
 
 @dataclass
 class MMRConfig:
@@ -261,10 +277,19 @@ class MMRConfig:
     """
     diversityBias = float
 
+
 @dataclass
 class RerankingConfig:
     rerankerId: int
     mmrConfig: Optional[MMRConfig]
+
+
+@dataclass
+class Summarizer:
+    summarizerPromptName: str
+    responseLang: str
+    maxSummarizedResults: int
+
 
 @dataclass
 class QueryBody:
@@ -274,15 +299,19 @@ class QueryBody:
     contextConfig: Optional[QueryContextConfig]
     corpusKey: List[CorpusKey]
     rerankingConfig: Optional[RerankingConfig]
+    summary: Optional[List[Summarizer]]
+
 
 @dataclass
 class BatchQueryRequest:
     query: List[QueryBody]
 
+
 @dataclass
 class Attribute:
     name: str
     value: str
+
 
 @dataclass
 class Response:
@@ -293,16 +322,27 @@ class Response:
     resultOffset: int
     resultOffset: int
 
+
 @dataclass
 class ResponseDocument:
     id: str
     metadata: List[Attribute]
+
+
+@dataclass
+class SummaryResponse:
+    text: Optional[str]
+    lang: str
+    prompt: str
+    status: List[Status]
+    # Do we need to serialize "futureId"?
 
 @dataclass
 class ResponseSet:
     response: List[Response]
     status: List[Status]
     document: Optional[List[ResponseDocument]]
+    summary: Optional[List[SummaryResponse]]
 
 @dataclass
 class PerformanceMetrics:
@@ -311,9 +351,9 @@ class PerformanceMetrics:
     userdataRetrievalMs: int
     rerankMs: int
 
+
 @dataclass
 class BatchQueryResponse:
     responseSet: Optional[List[ResponseSet]]
     status: List[Status]
     metrics: Optional[PerformanceMetrics]
-

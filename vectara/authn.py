@@ -105,7 +105,7 @@ class ApiKeyUtil(BaseAuthUtil):
 
     def __init__(self, customer_id, api_key):
         self.customer_id = customer_id
-        self.api_key = customer_id
+        self.api_key = api_key
 
     def get_headers(self):
         return {

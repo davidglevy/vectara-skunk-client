@@ -34,4 +34,8 @@ class AdminServiceIntegrationTest(unittest.TestCase):
 
         print("We found corpus [{corpus.}]")
 
+    def testListDocuments(self):
+        self.adminService.list_documents(6)
+
+
 
