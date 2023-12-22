@@ -44,3 +44,22 @@ class QueryService():
         else:
             self.logger.error(f"Received non 200 response {response.status_code}, throwing exception")
             response.raise_for_status()
+
+    def query(self,query_text:str, corpus_id: int, start:int=0, page_size:int=10, summary:bool=True):
+        corpus_key_dict = {'corpusId': corpus_id, 'customerId': self.customer_id}
+        query_dict = {'query': query_text, 'start': start, 'numResults': page_size, 'corpusKey': [corpus_key_dict]}
+
+        if summary:
+            query_dict['summary'] = [ { "summarizerPromptName": "vectara-summary-ext-v1.2.0",
+                                    "responseLang": "en",
+                                    "maxSummarizedResults": 3
+                                    }
+                                ]
+        batch_query_dict = {'query': [query_dict]}
+
+        query = from_dict(BatchQueryRequest, batch_query_dict)
+
+        final_query_dict = json.dumps(asdict(query))
+
+        result = self._make_request("query", final_query_dict, BatchQueryResponse)
+        return result

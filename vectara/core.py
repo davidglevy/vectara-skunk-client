@@ -3,19 +3,21 @@ from vectara.config import ClientConfig, ApiKeyAuthConfig, loadConfig
 from vectara.authn import OAuthUtil, ApiKeyUtil, BaseAuthUtil
 from vectara.admin import AdminService
 from vectara.index import IndexerService
+from vectara.query import QueryService
 
 import json
 
 
 class Client:
 
-    def __init__(self, customer_id: str, admin_service: AdminService, indexer_service: IndexerService):
+    def __init__(self, customer_id: str, admin_service: AdminService,
+                 indexer_service: IndexerService, query_service: QueryService):
         self.logging = logging.getLogger(self.__class__.__name__)
         logging.info("initializing Client")
         self.customer_id = customer_id
         self.admin_service = admin_service
         self.indexer_service = indexer_service
-
+        self.query_service = query_service
 
 
 class Factory():
@@ -80,10 +82,10 @@ class Factory():
 
         # TODO Use the type of authentication to validate whether we can enabled the admin service.
         admin_service = AdminService(authUtil, int(client_config.customer_id))
-
         indexer_service = IndexerService(authUtil, int(client_config.customer_id))
+        query_service = QueryService(authUtil, int(client_config.customer_id))
 
-        return Client(client_config.customer_id, admin_service, indexer_service)
+        return Client(client_config.customer_id, admin_service, indexer_service, query_service)
 
 
 

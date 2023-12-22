@@ -1,9 +1,13 @@
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 from enum import Enum
 from vectara.status import Status
 from vectara.enums import ApiKeyStatus, ApiKeyType
+
+from dataclasses import dataclass
+
+
 
 """
 Definitions taken from admin.proto in platform.
@@ -201,11 +205,115 @@ class UploadDocumentResponse:
     response: UploadDocumentResponseInner
     document: Document
 
+@dataclass
+class QueryContextConfig:
+    charsBefore: Optional[int]
+    charsAfter: Optional[int]
+    sentencesBefore: Optional[int]
+    sentencesAfter: Optional[int]
+    startTag: Optional[str]
+    endTag: Optional[str]
+
+@dataclass
+class QueryDim:
+    name: str
+    weight: int
+
+class Semantics(Enum):
+    DEFAULT = 0
+    QUERY = 1
+    RESPONSE =2
 
 
+@dataclass
+class LinearInterpolation:
+    _lambda: float  # Unfortunately Python dataclass attributes cannot be reserved words.
 
-#@dataclass
-#class IndexDocumentRequest:
-#    customerId: int
-#    corpusId: int
-#    document: Document
+@dataclass
+class CorpusKey:
+    customerId: Optional[int]
+    corpusId: int
+    semantics: Optional[str | Semantics]
+    dim: Optional[List[CustomDimension]]
+    metadataFilter: Optional[str]
+    lexicalInterpolationConfig: Optional[LinearInterpolation]
+
+    def __post_init__(self):
+        """
+        Hacky way to transform the str back into the enum value.
+        """
+        if self.semantics and isinstance(self.semantics, str):
+            self.semantics = Semantics[self.semantics]
+
+@dataclass
+class MMRConfig:
+    """
+    Intuitively, this bias controls how much the reranker should favor
+    diversity over relevance. A bias of 1 means that relevance is not
+    considered at all, while a bias of 0 means that diversity is not
+    considered. A score of 0.8 means that diversity counts for 80% of the
+    score, and relevance for 20%.
+
+    The bias is defined as (1 - lambda), where lambda is defined as in
+    the original paper, "The Use of MMR, Diversity-Based Reranking for
+    Reordering Documents and Producing Summaries" by Carbonell and Goldstein,
+    1998.
+    """
+    diversityBias = float
+
+@dataclass
+class RerankingConfig:
+    rerankerId: int
+    mmrConfig: Optional[MMRConfig]
+
+@dataclass
+class QueryBody:
+    query: str
+    start: Optional[int]
+    numResults: Optional[int]
+    contextConfig: Optional[QueryContextConfig]
+    corpusKey: List[CorpusKey]
+    rerankingConfig: Optional[RerankingConfig]
+
+@dataclass
+class BatchQueryRequest:
+    query: List[QueryBody]
+
+@dataclass
+class Attribute:
+    name: str
+    value: str
+
+@dataclass
+class Response:
+    text: str
+    score: float
+    metadata: List[Attribute]
+    corpusKey: CorpusKey
+    resultOffset: int
+    resultOffset: int
+
+@dataclass
+class ResponseDocument:
+    id: str
+    metadata: List[Attribute]
+
+@dataclass
+class ResponseSet:
+    response: List[Response]
+    status: List[Status]
+    document: Optional[List[ResponseDocument]]
+
+@dataclass
+class PerformanceMetrics:
+    queryEncodeMs: int
+    retrievalMs: int
+    userdataRetrievalMs: int
+    rerankMs: int
+
+@dataclass
+class BatchQueryResponse:
+    responseSet: Optional[List[ResponseSet]]
+    status: List[Status]
+    metrics: Optional[PerformanceMetrics]
+

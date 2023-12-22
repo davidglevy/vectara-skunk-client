@@ -91,4 +91,4 @@ class AdminService():
         payload = {"corpus_id" : corpus_id, "page": page, "num_results": page_size}
         if metadata_filter:
             payload['metadata_filter'] = metadata_filter
-        response = self._make_request("list-documents", json.dumps(payload), Any, method="GET")
+        response = self._make_request("list_documents", json.dumps(payload), Any, method="POST")
