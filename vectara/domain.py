@@ -214,7 +214,7 @@ class UploadDocumentResponseInner:
 @dataclass
 class UploadDocumentResponse:
     response: UploadDocumentResponseInner
-    document: Document
+    document: Optional[Document]
 
 
 @dataclass

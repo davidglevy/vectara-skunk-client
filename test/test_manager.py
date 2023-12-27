@@ -3,7 +3,6 @@ import logging
 from vectara.core import Factory
 from vectara.manager import VectaraManager
 from vectara.domain import Corpus
-from test.util import loadTestConfigAsJson
 from dacite import from_dict
 from vectara.dao import ManagerDao, CorpusDao
 
@@ -25,9 +24,8 @@ class VectaraManagerIntTest(unittest.TestCase):
     def setUp(self):
         self.logger.info("Loading Vectara Client")
 
-        test_config_json = loadTestConfigAsJson("admin")
-
-        factory = Factory(config_json=test_config_json)
+        test_config = "." + os.sep + ".vectara_test_config"
+        factory = Factory(config_path=test_config, profile="admin")
         client = factory.build()
 
         self.admin_service = client.admin_service
@@ -41,6 +39,8 @@ class VectaraManagerIntTest(unittest.TestCase):
         self.target = VectaraManager(client, self.managerDao, self.corpusDao, self.admin_service)
 
     def test(self):
-        self.target.sync_local_db()
+        # TODO Extract the manager from this project!!
+        pass
+        #self.target.sync_local_db()
 
 

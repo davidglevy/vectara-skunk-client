@@ -1,8 +1,6 @@
 import unittest
 import logging
 from vectara.core import Factory
-from vectara.query import QueryService
-from test.util import loadTestConfigAsJson
 import json
 import os
 
@@ -16,9 +14,8 @@ class QueryServiceIntegrationTest(unittest.TestCase):
     def setUp(self):
         print(os.getcwd())
 
-        test_config_json = loadTestConfigAsJson("summarizer")
-
-        factory = Factory(config_json=test_config_json)
+        test_config = "." + os.sep + ".vectara_test_config"
+        factory = Factory(config_path=test_config, profile="admin")
         client = factory.build()
 
         self.queryService = client.query_service

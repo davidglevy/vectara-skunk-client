@@ -1,5 +1,5 @@
 import logging
-from vectara.config import ClientConfig, ApiKeyAuthConfig, loadConfig
+from vectara.config import JsonConfigLoader, PathConfigLoader, HomeConfigLoader
 from vectara.authn import OAuthUtil, ApiKeyUtil, BaseAuthUtil
 from vectara.admin import AdminService
 from vectara.index import IndexerService
@@ -22,7 +22,7 @@ class Client:
 
 class Factory():
 
-    def __init__(self, config_path=None, config_json=None):
+    def __init__(self, config_path: str = None, config_json: str = None, profile: str = None):
         """
         Initialize our factory using configuration which may either be in a file or serialized in a JSON string
 
@@ -34,6 +34,7 @@ class Factory():
         self.logger.info("initializing builder")
         self.config_path = config_path
         self.config_json = config_json
+        self.profile = profile
 
     def build(self):
         """
@@ -42,50 +43,43 @@ class Factory():
         """
 
         # 1. Load the config whether we're doing file or we've had it passed in as a String.
-        if self.config_path and self.config_json:
-            raise TypeError("You need to initialize the factory with one of [config_path] or [config_dict] selected")
         if self.config_path:
-            self.logger.info("Loading config JSON from file [{config_path}]")
-            with open(self.config_path, 'r') as f:
-                self.config_json = f.read()
+            self.logger.info("Factory will load configuration from path")
+            config_loader = PathConfigLoader(config_path=self.config_path, profile=self.profile)
         elif self.config_json:
-            self.logger.info("Loading config JSON from injected string to factory")
+            self.logger.info("Factory will load configuration from JSON")
+            config_loader=JsonConfigLoader(config_json=self.config_json, profile=self.profile)
         else:
-            raise TypeError("You must set either variable [config_path] or [config_dict]")
+            self.logger.info("Factory will load configuration from home directory")
+            config_loader=HomeConfigLoader(profile=self.profile)
 
         # 2. Parse and validate the client configuration
         try:
-            self.logger.info("Passing the JSON to our config")
-            client_config = loadConfig(self.config_json)
+            client_config = config_loader.load()
         except Exception as e:
             # Raise a new exception without extra stack trace. We know the JSON failed to parse.
-            raise TypeError(f"Invalid content of config: {e}") from None
+            raise TypeError(f"Unable to build factory due to configuration error: {e}")
 
         errors = client_config.validate()
         if errors:
             raise TypeError(f"Client configuration is not valid {errors}")
 
         # 3. Load the validated configuration into our client.
-
-        # TODO Lets see if we can merge dataclasses with the Client classes themselves.
-
         auth_config = client_config.auth
         auth_type = auth_config.getAuthType()
         logging.info(f"We are processing authentication type [{auth_type}]")
 
         if auth_type == "ApiKey":
-            authUtil = ApiKeyUtil(client_config.customer_id, client_config.auth.api_key)
+            auth_util = ApiKeyUtil(client_config.customer_id, client_config.auth.api_key)
         elif auth_type == "OAuth2":
-            authUtil = OAuthUtil(auth_config.auth_url, auth_config.app_id, auth_config.app_client_secret, client_config.customer_id)
+            auth_util = OAuthUtil(auth_config.auth_url, auth_config.app_client_id, auth_config.app_client_secret,
+                                 client_config.customer_id)
         else:
             raise TypeError(f"Unknown authentication type: {auth_type}")
 
         # TODO Use the type of authentication to validate whether we can enabled the admin service.
-        admin_service = AdminService(authUtil, int(client_config.customer_id))
-        indexer_service = IndexerService(authUtil, int(client_config.customer_id))
-        query_service = QueryService(authUtil, int(client_config.customer_id))
+        admin_service = AdminService(auth_util, int(client_config.customer_id))
+        indexer_service = IndexerService(auth_util, int(client_config.customer_id))
+        query_service = QueryService(auth_util, int(client_config.customer_id))
 
         return Client(client_config.customer_id, admin_service, indexer_service, query_service)
-
-
-
