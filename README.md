@@ -32,8 +32,20 @@ indexer = client.indexer_service
 query = client.query_service
 
 ```
+## Factory Build Configuration Flow
 
-### Configuration Location
+The factory can use multiple options to load the configuration which are given below 
+when `Factory().build(...)` is invoked.:
+
+1. Param `config_path`: If a config path is specified this is used:
+   1. If this is a file it will be read
+   2. If this is a directory, we will look at `${config_path}/.vec_auth.yaml`
+2. Param `config_json`: If a JSON configuration is passed in then this will be used.
+3. If neither has been specified, we will look in the users home directory
+
+<img src="./resources/images/factory-build-flow.png" alt="factory build flow" style="width:600px;"/>
+
+### Home Location
 The factory by default will automatically seek configuration in the following locations:
 * On Linux based systems from within $HOME/.vec/auth.yaml
 * On Windows based systems from within %USERHOME%\.vec\auth.yaml
