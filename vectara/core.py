@@ -4,6 +4,7 @@ from vectara.authn import OAuthUtil, ApiKeyUtil, BaseAuthUtil
 from vectara.admin import AdminService
 from vectara.index import IndexerService
 from vectara.query import QueryService
+from vectara.util import RequestUtil
 
 import json
 
@@ -48,10 +49,10 @@ class Factory():
             config_loader = PathConfigLoader(config_path=self.config_path, profile=self.profile)
         elif self.config_json:
             self.logger.info("Factory will load configuration from JSON")
-            config_loader=JsonConfigLoader(config_json=self.config_json, profile=self.profile)
+            config_loader = JsonConfigLoader(config_json=self.config_json, profile=self.profile)
         else:
             self.logger.info("Factory will load configuration from home directory")
-            config_loader=HomeConfigLoader(profile=self.profile)
+            config_loader = HomeConfigLoader(profile=self.profile)
 
         # 2. Parse and validate the client configuration
         try:
@@ -73,13 +74,15 @@ class Factory():
             auth_util = ApiKeyUtil(client_config.customer_id, client_config.auth.api_key)
         elif auth_type == "OAuth2":
             auth_util = OAuthUtil(auth_config.auth_url, auth_config.app_client_id, auth_config.app_client_secret,
-                                 client_config.customer_id)
+                                  client_config.customer_id)
         else:
             raise TypeError(f"Unknown authentication type: {auth_type}")
 
         # TODO Use the type of authentication to validate whether we can enabled the admin service.
-        admin_service = AdminService(auth_util, int(client_config.customer_id))
-        indexer_service = IndexerService(auth_util, int(client_config.customer_id))
+        request_util = RequestUtil(auth_util)
+
+        admin_service = AdminService(request_util, int(client_config.customer_id))
+        indexer_service = IndexerService(auth_util, request_util, int(client_config.customer_id))
         query_service = QueryService(auth_util, int(client_config.customer_id))
 
         return Client(client_config.customer_id, admin_service, indexer_service, query_service)
