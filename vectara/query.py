@@ -13,15 +13,18 @@ from vectara.util import _custom_asdict_factory, RequestUtil
 T = TypeVar("T")
 
 
+class SummaryError(Exception):
+
+    def __init__(self, message):
+        # Call the base class constructor with the parameters it needs
+        super().__init__(message)
+
 class QueryService():
 
     def __init__(self, request_util: RequestUtil, customer_id: int):
         self.logger = logging.getLogger(__class__.__name__)
         self.request_util = request_util
         self.customer_id = customer_id
-
-    def checkSummary(self, summary):
-
 
     def query(self, query_text: str, corpus_id: int, start: int = 0, page_size: int = 10,
               summary: bool = True, response_lang:str='en'):
@@ -56,8 +59,8 @@ class QueryService():
         if len(result.status) > 0:
             # FIXME Talk to Tallat about this being empty and what it will look like when populated (OK)
             raise Exception(f"Unexpected response: {result.status}")
-        elif summary and
+        elif summary and result.responseSet[0].summary[0].text.find("[1]") == 0:
+            raise SummaryError("We did not have sufficient results")
+        else:
             return result.responseSet[0]
-        else
 
-class QueryRenderer:
