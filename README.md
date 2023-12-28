@@ -57,15 +57,17 @@ the factory will load the profile "default". You must specify your customer_id b
 ```yaml
 default:
   customer_id : "1999999999"
-  # For API Key, you only need the API key
-  api_key : "abcdabcdabcdabcdabcdabcdababcdabcd"
+  auth:
+    # For API Key, you only need the API key
+    api_key : "abcdabcdabcdabcdabcdabcdababcdabcd"
 admin:
   customer_id : "1999999999" # Customer Id as a string
-  # For OAuth2, you need app_client_id, app_client_secret, auth_url
-  app_client_id : "abcdabcdabcdabcdabcdabcdab"
-  app_client_secret : "abcdabcdabcdabcdabcdabcdababcdabcdabcdabcdabcdabcdab"
-  # This is optional, you can leave this blank in most circumstances
-  auth_url : "https://vectara-prod-YOUR_CUSTOMER_ID.auth.us-west-2.amazoncognito.com/oauth2/token"
+  auth:
+    # For OAuth2, you need app_client_id, app_client_secret, auth_url
+    app_client_id : "abcdabcdabcdabcdabcdabcdab"
+    app_client_secret : "abcdabcdabcdabcdabcdabcdababcdabcdabcdabcdabcdabcdab"
+    # This is optional, you can leave this blank in most circumstances
+    auth_url : "https://vectara-prod-YOUR_CUSTOMER_ID.auth.us-west-2.amazoncognito.com/oauth2/token"
 ```
 
 ### Multiple Profiles
