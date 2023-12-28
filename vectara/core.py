@@ -83,6 +83,6 @@ class Factory():
 
         admin_service = AdminService(request_util, int(client_config.customer_id))
         indexer_service = IndexerService(auth_util, request_util, int(client_config.customer_id))
-        query_service = QueryService(auth_util, int(client_config.customer_id))
+        query_service = QueryService(request_util, int(client_config.customer_id))
 
         return Client(client_config.customer_id, admin_service, indexer_service, query_service)
