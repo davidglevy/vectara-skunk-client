@@ -1,7 +1,8 @@
+from abc import ABC
 from enum import Enum
 from vectara.authn import BaseAuthUtil
-from vectara.domain import UploadDocumentResponse
-from typing import Type, TypeVar
+from vectara.domain import UploadDocumentResponse, ResponseSet, Response, ResponseDocument, SummaryResponse
+from typing import Type, TypeVar, List
 from dacite import from_dict
 from pathlib import Path
 from tqdm import tqdm
@@ -126,4 +127,96 @@ class RequestUtil:
         elif input_file_name:
             raise Exception("Re-implement after refactor")
             #files={'file': (input_file_name, input_contents), 'c': self.customer_id, 'o': corpus_id}
+
+class BaseFormatter(ABC):
+
+    def __init__(self):
+        pass
+
+    def heading(self, heading:str, level:int=1):
+        raise Exception("Implement in subclass")
+
+    def sentence(self, sentence:str):
+        raise Exception("Implement in subclass")
+
+    def link(self, text:str, url:str):
+        raise Exception("Implement in subclass")
+
+    def paragraph(self, paragraph:str):
+        raise Exception("Implement in subclass")
+
+    def bold(self, text:str):
+        raise Exception("Implement in subclass")
+
+    def italic(self, text: str):
+        raise Exception("Implement in subclass")
+
+    def list(self, items:List[str], level:int=1):
+        raise Exception("Implement in subclass")
+
+
+class MarkdownFormatter(BaseFormatter):
+
+    def __init__(self):
+        pass
+
+    def heading(self, heading: str, level: int = 1):
+        indent = "#" * level
+        return f'\n{indent} {heading}'
+
+    def sentence(self, sentence: str):
+        return sentence
+
+    def link(self, text, url):
+        return f"[{text}]({url})"
+
+    def paragraph(self, paragraph: str):
+        return f"\n\n{paragraph}\n"
+
+    def bold(self, text: str):
+        return f"**{text}**"
+
+    def italic(self, text: str):
+        return f"*{text}*"
+
+    def list(self, items:List[str], level:int=1):
+        if level < 1:
+            raise TypeError("List level must be greater than 0")
+        indent = " " * (level - 1)
+        results = [f"{indent} {idx+1}. {item}" for idx, item in enumerate(items)]
+        return "\n" + "\n".join(results) + "\n"
+
+
+class ResponseSetRenderer:
+
+    def __init__(self, formatter:BaseFormatter):
+        self.formatter = formatter
+
+    def render(self, query:str, responseSet:ResponseSet):
+        f = self.formatter
+        results = []
+
+        # Build Heading
+        results.append(f.heading(f"Query: {query}"))
+
+        # Build Summary
+        summary_text = responseSet.summary[0].text
+        results.append(f.paragraph(summary_text))
+
+        # Build items
+        docs = []
+        for result in responseSet.response:
+            item = f.sentence(result.text) + " " + f.italic("score: " + str(result.score))
+            docs.append(item)
+
+        list_text = f.list(docs)
+        results.append(list_text)
+
+        return "".join(results)
+
+def renderMarkdown(query:str, responseSet:ResponseSet):
+    formatter = MarkdownFormatter()
+    renderer = ResponseSetRenderer(formatter)
+    return renderer.render(query, responseSet)
+
 

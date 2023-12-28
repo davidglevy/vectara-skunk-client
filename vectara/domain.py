@@ -320,8 +320,6 @@ class Response:
     metadata: List[Attribute]
     corpusKey: CorpusKey
     resultOffset: int
-    resultOffset: int
-
 
 @dataclass
 class ResponseDocument:
