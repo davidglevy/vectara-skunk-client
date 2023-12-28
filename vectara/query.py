@@ -8,53 +8,34 @@ from dacite import from_dict
 from typing import Type, Any, List, TypeVar
 from vectara.dao import CorpusDao
 from vectara.status import StatusCode
-from vectara.util import _custom_asdict_factory
+from vectara.util import _custom_asdict_factory, RequestUtil
 
 T = TypeVar("T")
 
 
 class QueryService():
 
-    def __init__(self, auth_util: BaseAuthUtil, customer_id: int):
+    def __init__(self, request_util: RequestUtil, customer_id: int):
         self.logger = logging.getLogger(__class__.__name__)
-        self.auth_util = auth_util
+        self.request_util = request_util
         self.customer_id = customer_id
 
-    def _make_request(self, operation: str, payload, to_class: Type[T], method="POST") -> T:
-        """
+    def checkSummary(self, summary):
 
-        :param operation: the REST operation to perform.
-        :param payload: the payload which will be serialized.
-        :return:
-        """
-        headers = self.auth_util.get_headers()
-        #headers['Content-Type'] = 'application/json'
-        #headers['Accept'] = 'application/json'
 
-        self.logger.info(f"Headers: {json.dumps(headers)}")
-
-        url = f"https://api.vectara.io/v1/{operation}"
-        self.logger.info(f"URL for operation {operation} is: {url}")
-        self.logger.info(f"Payload is:\n{json.dumps(payload,indent=4)}")
-
-        response = requests.post(url,
-            data=json.dumps(payload),
-            verify=True,
-            headers=headers)
-
-        if response.status_code == 200:
-            return from_dict(to_class, json.loads(response.text))
-        else:
-            self.logger.error(f"Received non 200 response {response.status_code}, throwing exception")
-            response.raise_for_status()
-
-    def query(self, query_text: str, corpus_id: int, start: int = 0, page_size: int = 10, summary: bool = True):
+    def query(self, query_text: str, corpus_id: int, start: int = 0, page_size: int = 10,
+              summary: bool = True, response_lang:str='en'):
         corpus_key_dict = {'customerId': self.customer_id, 'corpusId': corpus_id}
         query_dict = {'query': query_text, 'numResults': page_size, 'corpusKey': [corpus_key_dict]}
 
         if summary:
+            if response_lang:
+                self.logger.info(f"Response Language set to [{response_lang}]")
+            else:
+                raise TypeError("If you are going to change from the default language (en) you must set one.")
+
             query_dict['summary'] = [{"summarizerPromptName": "vectara-summary-ext-v1.2.0",
-                                      "responseLang": "en",
+                                      "responseLang": response_lang,
                                       "maxSummarizedResults": 5
                                       }]
         else:
@@ -71,5 +52,12 @@ class QueryService():
         # Dataclasses feel like coding with the first XML serializers in Java in 2005 - very early.
         final_query_dict = asdict(query, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
 
-        result = self._make_request("query", final_query_dict, BatchQueryResponse)
-        return result
+        result = self.request_util.request("query", final_query_dict, BatchQueryResponse)
+        if len(result.status) > 0:
+            # FIXME Talk to Tallat about this being empty and what it will look like when populated (OK)
+            raise Exception(f"Unexpected response: {result.status}")
+        elif summary and
+            return result.responseSet[0]
+        else
+
+class QueryRenderer:

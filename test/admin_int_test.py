@@ -1,41 +1,29 @@
 import unittest
 import logging
 from vectara.core import Factory
-from test.util import loadTestConfigAsJson
+from test.base import BaseClientTest
 import json
 import os
 
-logging.basicConfig(
-        format=logging.BASIC_FORMAT, level=logging.INFO)
+class AdminServiceIntTest(BaseClientTest):
 
-
-class AdminServiceIntegrationTest(unittest.TestCase):
-
-
-    def setUp(self):
-        print(os.getcwd())
-
-        test_config_json = loadTestConfigAsJson("admin")
-
-        factory = Factory(config_json=test_config_json)
-        client = factory.build()
-
-        self.adminService = client.admin_service
+    #def setUp(self):
+    #    super().setUp()
 
     def testListCorpora(self):
         corpora = self.adminService.list_corpora()
         for corpus in corpora:
             print(f"We found id [{corpus.id}] with name [{corpus.name}]")
 
-    #@unittest.skip("This method appears to have not been implemented")
-    def testReadCorpus(self):
-
-        corpus = self.adminService.read_corpus(6)
+#    #@unittest.skip("This method appears to have not been implemented")
+#    def testReadCorpus(self):
+#
+#        corpus = self.adminService.read_corpus(6)
 
         print("We found corpus [{corpus.}]")
 
     def testListDocuments(self):
-        self.adminService.list_documents(6)
+        self.admin_service.list_documents(6)
 
 
 

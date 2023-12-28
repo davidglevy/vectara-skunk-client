@@ -10,7 +10,7 @@ class BaseClientTest(TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO, datefmt='%H:%M:%S %z')
+        logging.basicConfig(format='%(asctime)s:%(name)-35s %(levelname)s:%(message)s', level=logging.INFO, datefmt='%H:%M:%S %z')
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.test_corpus_name = self.__class__.__name__

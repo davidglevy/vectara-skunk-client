@@ -48,14 +48,16 @@ class OAuthUtil(BaseAuthUtil):
         self.logger.info(f"OAuth2 URL is [{self.auth_url}]")
 
         self.app_client_id = app_client_id
-        if (self.app_client_id):
-            self.logger.info(f"OAuth Application Client Id: {self.app_client_id}")
+        if self.app_client_id:
+            self.logger.debug(f"OAuth Application Client Id: {self.app_client_id}")
         self.app_client_secret = app_client_secret
-        if (self.app_client_secret):
-            self.logger.info(f"OAuth Application Client Secret: {self.app_client_secret}")
+        if self.app_client_secret:
+            self.logger.debug(f"OAuth Application Client Secret: {self.app_client_secret}")
 
         self.expiry_ts = None
         self.expiry_txt = None
+        self.expires_in = None
+        self.expires_at = None
         self.access_token = None
 
 

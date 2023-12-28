@@ -28,10 +28,9 @@ class AdminServiceIntegrationTest(BaseClientTest):
             raise Exception("Unexpected test issue - found multiple test corpora")
 
 
-        self.logger.info(f"TODO Creating Corpora for System Test [{self.test_corpus_name}]")
-        corpus = from_dict(Corpus, {'name': self.test_corpus_name, 'description': 'Test Corpus for system test. Delete after test.'})
-
-        response = self.admin_service.create_corpus(corpus)
+        self.logger.info(f"Creating Corpora for System Test [{self.test_corpus_name}]")
+        response = self.admin_service.create_corpus(self.test_corpus_name,
+                                                    description='Test Corpus for system test. Delete after test.')
         self.logger.info(f"Created test corpus {response}")
         self.corpus_id = response.corpusId
 

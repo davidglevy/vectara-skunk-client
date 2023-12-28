@@ -28,8 +28,7 @@ class IndexerService():
         if return_extracted:
             params['d'] = str(True)
 
-        response = self.request_util.multipart_post("upload", path_str=path, input_contents=input_contents, input_file_name=input_file_name, params=params, headers=headers)
-        return None
+        return self.request_util.multipart_post("upload", path_str=path, input_contents=input_contents, input_file_name=input_file_name, params=params, headers=headers)
 
     def upload_old(self, corpus_id: int, path: str = None, input_contents: bytes = None, input_file_name: str = None,
                    return_extracted: bool = None, metadata: dict = None) -> UploadDocumentResponse:
@@ -66,8 +65,8 @@ class IndexerService():
         print(response)
 
         if response.status_code == 200:
-            indexResponse = from_dict(UploadDocumentResponse, json.loads(response.text))
-            return indexResponse
+            index_response = from_dict(UploadDocumentResponse, json.loads(response.text))
+            return index_response
         else:
             self.logger.error(f"Received non 200 response {response.status_code}, throwing exception")
             response.raise_for_status()

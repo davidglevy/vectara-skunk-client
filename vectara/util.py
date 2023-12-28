@@ -30,28 +30,6 @@ class RequestUtil:
         self.logger = logging.getLogger(__class__.__name__)
         self.auth_util = auth_util
 
-    def _upload_file(upload_url, fields, filepath):
-
-        path = Path(filepath)
-        total_size = path.stat().st_size
-        filename = path.name
-
-        with tqdm(
-                desc=filename,
-                total=total_size,
-                unit="B",
-                unit_scale=True,
-                unit_divisor=1024,
-        ) as bar:
-            with open(filepath, "rb") as f:
-                fields["file"] = ("filename", f)
-                e = MultipartEncoder(fields=fields)
-                m = MultipartEncoderMonitor(
-                    e, lambda monitor: bar.update(monitor.bytes_read - bar.n)
-                )
-                headers = {"Content-Type": m.content_type}
-                requests.post(upload_url, data=m, headers=headers)
-
     def request(self, operation: str, payload, to_class: Type[T], method="POST") -> T:
         """
 
@@ -63,13 +41,14 @@ class RequestUtil:
         headers['Content-Type'] = 'application/json'
         headers['Accept'] = 'application/json'
 
-        self.logger.info(f"Headers: {json.dumps(headers)}")
+        self.logger.debug(f"Headers: {json.dumps(headers)}")
 
         url = f"https://api.vectara.io/v1/{operation}"
         self.logger.info(f"URL for operation {operation} is: {url}")
-        self.logger.info(f"Payload is: {json.dumps(payload, indent=4)}")
+        if self.logger.isEnabledFor(logging.DEBUG):
+            self.logger.debug(f"Payload is: {json.dumps(payload, indent=4)}")
 
-        payload_json = json.dumps(payload)
+        payload_json = json.dumps (payload)
 
         response = requests.request(method, url, headers=headers, data=payload_json)
 
@@ -90,7 +69,7 @@ class RequestUtil:
         for sec_header in sec_headers.keys():
             headers[sec_header] = sec_headers[sec_header]
 
-        self.logger.info(f"Headers: {json.dumps(headers)}")
+        self.logger.debug(f"Headers: {json.dumps(headers)}")
 
 
         upload_url = f"https://api.vectara.io/v1/{operation}"
@@ -105,7 +84,7 @@ class RequestUtil:
 
             with warnings.catch_warnings(action="ignore"):
                 """
-                Need to ignore tqdm\std.py:580: DeprecationWarning: datetime.datetime.utcfromtimestamp()
+                Need to ignore tqdm std.py:580: DeprecationWarning: datetime.datetime.utcfromtimestamp()
                 
                 See more here: https://github.com/tqdm/tqdm/issues/1517                
                 """
@@ -139,7 +118,7 @@ class RequestUtil:
                         response = requests.post(upload_url, data=m, headers=headers)
 
                         if response.status_code == 200:
-                            return response
+                            return from_dict(UploadDocumentResponse, json.loads(response.text))
                         else:
                             self.logger.error(f"Received non 200 response {response.status_code}: {response.text}")
                             response.raise_for_status()
