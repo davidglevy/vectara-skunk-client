@@ -203,8 +203,9 @@ class ResponseSetRenderer:
         results.append(f.heading(f"Query: {query}"))
 
         # Build Summary
-        summary_text = responseSet.summary[0].text
-        results.append(f.paragraph(summary_text))
+        if len(responseSet.summary) > 0:
+            summary_text = responseSet.summary[0].text
+            results.append(f.paragraph(summary_text))
 
         # Build items
         docs = []

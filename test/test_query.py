@@ -19,6 +19,6 @@ class QueryIntegrationTest(BaseClientTest):
         :return:
         """
         qs = self.client.query_service
-        query = "What are some of the scalability challenges faced by Java?"
-        response = qs.query(query, 6)
+        query = "At Vectara, Can I bring any birds to the Vectara Office?"
+        response = qs.query(query, 121)
         self.logger.info(render_markdown(query, response))
