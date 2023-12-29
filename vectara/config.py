@@ -88,7 +88,7 @@ class BaseConfigLoader(ABC):
     DEFAULT_CONFIG_NAME = "default"
 
     def __init__(self, profile: str = None):
-        self.logger = logging.getLogger()
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.profile = profile
 
     def load(self):
