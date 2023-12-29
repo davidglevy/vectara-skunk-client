@@ -9,6 +9,7 @@ from typing import Type, Any, List, TypeVar
 from vectara.dao import CorpusDao
 from vectara.status import StatusCode
 from vectara.util import _custom_asdict_factory, RequestUtil
+import re
 
 T = TypeVar("T")
 
@@ -28,7 +29,17 @@ class QueryService():
         self.customer_id = customer_id
 
     def query(self, query_text: str, corpus_id: int, start: int = 0, page_size: int = 10,
-              summary: bool = True, response_lang: str = 'en'):
+              summary: bool = True, response_lang: str = 'en', context_config=None):
+
+        if not context_config:
+            context_config = {
+                'charsBefore': 30,
+                'charsAfter': 30,
+                'sentencesBefore': 1,
+                'sentencesAfter': 1,
+                'startTag': '<b>',
+                'endTag': '</b>'
+            }
 
         corpus_key_dict = {'customerId': self.customer_id,
                            'corpusId': corpus_id,
@@ -37,6 +48,7 @@ class QueryService():
         query_dict = {
             'query': query_text,
             'numResults': page_size,
+            'contextConfig': context_config,
             'corpusKey': [corpus_key_dict]
         }
 
@@ -72,7 +84,7 @@ class QueryService():
         if len(result.status) > 0:
             # FIXME Talk to Tallat about this being empty and what it will look like when populated (OK)
             raise Exception(f"Unexpected response: {result.status}")
-        elif summary and result.responseSet[0].summary[0].text.find("[1]") == 0:
+        elif summary and not re.search(r"\[[0-9]+\]", result.responseSet[0].summary[0].text):
             raise SummaryError("We did not have sufficient results")
         else:
             return result.responseSet[0]

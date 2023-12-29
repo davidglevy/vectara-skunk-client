@@ -318,8 +318,10 @@ class Response:
     text: str
     score: float
     metadata: List[Attribute]
+    documentIndex: int
     corpusKey: CorpusKey
     resultOffset: int
+    resultLength: int
 
 @dataclass
 class ResponseDocument:

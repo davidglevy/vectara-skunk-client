@@ -209,7 +209,17 @@ class ResponseSetRenderer:
         # Build items
         docs = []
         for result in responseSet.response:
-            item = f.sentence(result.text) + " " + f.italic("score: " + str(result.score))
+            doc_index = result.documentIndex
+            doc = responseSet.document[doc_index]
+
+            title = doc.id
+            for entry in doc.metadata:
+                if entry.name.lower() == 'title':
+                    title = entry.value
+                    break
+
+            item = (f.bold(title) + f" ({doc.id}): " + f.sentence(result.text)
+                    + " " + f.italic("score: " + str(result.score)))
             docs.append(item)
 
         list_text = f.list(docs)
