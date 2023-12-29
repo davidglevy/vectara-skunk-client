@@ -19,7 +19,7 @@ class QueryIntegrationTest(BaseClientTest):
         :return:
         """
         qs = self.client.query_service
-        #query = "At Vectara, Can I bring any birds to the Vectara Office?"
-        query = "هل يمكنني إحضار أي طيور إلى مكتب Vectara؟"
-        response = qs.query(query, 124)
+        query = "At Vectara, Can I bring any birds to the Vectara Office?"
+        #query = "هل يمكنني إحضار أي طيور إلى مكتب Vectara؟"
+        response = qs.query(query, 126)
         self.logger.info(render_markdown(query, response))

@@ -180,7 +180,7 @@ class CustomDimension:
 
 @dataclass
 class Section:
-    id: int
+    id: Optional[int]
     title: Optional[str]
     text: str
     metadataJson: Optional[str]
