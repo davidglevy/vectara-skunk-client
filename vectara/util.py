@@ -229,9 +229,11 @@ class ResponseSetRenderer:
         results = "".join(results)
         if rtl:
             return f.rtl(results)
+        else:
+            return results
 
 
-def render_markdown(query: str, response_set: ResponseSet):
+def render_markdown(query: str, response_set: ResponseSet, rtl=False):
     formatter = MarkdownFormatter()
     renderer = ResponseSetRenderer(formatter)
-    return renderer.render(query, response_set)
+    return renderer.render(query, response_set, rtl)
