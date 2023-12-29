@@ -157,6 +157,9 @@ class BaseFormatter(ABC):
     def list(self, items: List[str], level: int = 1):
         raise Exception("Implement in subclass")
 
+    def rtl(self, text: str):
+        raise Exception("Implement in subclass")
+
 
 class MarkdownFormatter(BaseFormatter):
 
@@ -189,13 +192,15 @@ class MarkdownFormatter(BaseFormatter):
         results = [f"{indent} {idx + 1}. {item}" for idx, item in enumerate(items)]
         return "\n" + "\n".join(results) + "\n"
 
+    def rtl(self, text):
+        return '<div dir="rtl">\n' + text + '</div>'
 
 class ResponseSetRenderer:
 
     def __init__(self, formatter: BaseFormatter):
         self.formatter = formatter
 
-    def render(self, query: str, responseSet: ResponseSet):
+    def render(self, query: str, responseSet: ResponseSet, rtl=False):
         f = self.formatter
         results = []
 
@@ -213,20 +218,17 @@ class ResponseSetRenderer:
             doc_index = result.documentIndex
             doc = responseSet.document[doc_index]
 
-            title = doc.id
-            for entry in doc.metadata:
-                if entry.name.lower() == 'title':
-                    title = entry.value
-                    break
-
-            item = (f.bold(title) + f" ({doc.id}): " + f.sentence(result.text)
-                    + " " + f.italic("score: " + str(result.score)))
+            item = f.sentence(result.text) + " " + f.italic("score: " + str(result.score) + ", doc-id: " + doc.id)
             docs.append(item)
 
         list_text = f.list(docs)
         results.append(list_text)
 
-        return "".join(results)
+        # TODO Build document list.
+
+        results = "".join(results)
+        if rtl:
+            return f.rtl(results)
 
 
 def render_markdown(query: str, response_set: ResponseSet):
