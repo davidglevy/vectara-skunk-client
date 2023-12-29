@@ -22,7 +22,9 @@ def _custom_asdict_factory(data):
             return obj.name
         return obj
 
-    return dict((k, convert_value(v)) for k, v in data)
+    return dict((k, convert_value(v)) for k, v in data if v is not None)
+
+    # lambda x: {k: v for (k, v) in x if v is not None}
 
 
 class RequestUtil:
@@ -49,7 +51,7 @@ class RequestUtil:
         if self.logger.isEnabledFor(logging.DEBUG):
             self.logger.debug(f"Payload is: {json.dumps(payload, indent=4)}")
 
-        payload_json = json.dumps (payload)
+        payload_json = json.dumps(payload)
 
         response = requests.request(method, url, headers=headers, data=payload_json)
 
@@ -59,7 +61,8 @@ class RequestUtil:
             self.logger.error(f"Received non 200 response {response.status_code}, throwing exception")
             response.raise_for_status()
 
-    def multipart_post(self, operation: str, path_str:str=None, input_contents:bytes=None, input_file_name:str=None,
+    def multipart_post(self, operation: str, path_str: str = None, input_contents: bytes = None,
+                       input_file_name: str = None,
                        params=None, headers=None) -> UploadDocumentResponse:
 
         # Create headers, taking in any from the particular method.
@@ -71,7 +74,6 @@ class RequestUtil:
             headers[sec_header] = sec_headers[sec_header]
 
         self.logger.debug(f"Headers: {json.dumps(headers)}")
-
 
         upload_url = f"https://api.vectara.io/v1/{operation}"
 
@@ -90,11 +92,11 @@ class RequestUtil:
                 See more here: https://github.com/tqdm/tqdm/issues/1517                
                 """
                 with tqdm(
-                    desc=tracker_file_name,
-                    total=tracker_total_size,
-                    unit="B",
-                    unit_scale=True,
-                    unit_divisor=1024
+                        desc=tracker_file_name,
+                        total=tracker_total_size,
+                        unit="B",
+                        unit_scale=True,
+                        unit_divisor=1024
                 ) as bar:
 
                     with open(path, 'rb') as f:
@@ -126,32 +128,33 @@ class RequestUtil:
 
         elif input_file_name:
             raise Exception("Re-implement after refactor")
-            #files={'file': (input_file_name, input_contents), 'c': self.customer_id, 'o': corpus_id}
+            # files={'file': (input_file_name, input_contents), 'c': self.customer_id, 'o': corpus_id}
+
 
 class BaseFormatter(ABC):
 
     def __init__(self):
         pass
 
-    def heading(self, heading:str, level:int=1):
+    def heading(self, heading: str, level: int = 1):
         raise Exception("Implement in subclass")
 
-    def sentence(self, sentence:str):
+    def sentence(self, sentence: str):
         raise Exception("Implement in subclass")
 
-    def link(self, text:str, url:str):
+    def link(self, text: str, url: str):
         raise Exception("Implement in subclass")
 
-    def paragraph(self, paragraph:str):
+    def paragraph(self, paragraph: str):
         raise Exception("Implement in subclass")
 
-    def bold(self, text:str):
+    def bold(self, text: str):
         raise Exception("Implement in subclass")
 
     def italic(self, text: str):
         raise Exception("Implement in subclass")
 
-    def list(self, items:List[str], level:int=1):
+    def list(self, items: List[str], level: int = 1):
         raise Exception("Implement in subclass")
 
 
@@ -179,20 +182,20 @@ class MarkdownFormatter(BaseFormatter):
     def italic(self, text: str):
         return f"*{text}*"
 
-    def list(self, items:List[str], level:int=1):
+    def list(self, items: List[str], level: int = 1):
         if level < 1:
             raise TypeError("List level must be greater than 0")
         indent = " " * (level - 1)
-        results = [f"{indent} {idx+1}. {item}" for idx, item in enumerate(items)]
+        results = [f"{indent} {idx + 1}. {item}" for idx, item in enumerate(items)]
         return "\n" + "\n".join(results) + "\n"
 
 
 class ResponseSetRenderer:
 
-    def __init__(self, formatter:BaseFormatter):
+    def __init__(self, formatter: BaseFormatter):
         self.formatter = formatter
 
-    def render(self, query:str, responseSet:ResponseSet):
+    def render(self, query: str, responseSet: ResponseSet):
         f = self.formatter
         results = []
 
@@ -214,9 +217,8 @@ class ResponseSetRenderer:
 
         return "".join(results)
 
-def renderMarkdown(query:str, responseSet:ResponseSet):
+
+def render_markdown(query: str, response_set: ResponseSet):
     formatter = MarkdownFormatter()
     renderer = ResponseSetRenderer(formatter)
-    return renderer.render(query, responseSet)
-
-
+    return renderer.render(query, response_set)

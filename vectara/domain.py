@@ -241,7 +241,7 @@ class Semantics(Enum):
 
 @dataclass
 class LinearInterpolation:
-    _lambda: float  # Unfortunately Python dataclass attributes cannot be reserved words.
+    _lambda: Optional[float]  # Unfortunately Python dataclass attributes cannot be reserved words.
 
 
 @dataclass

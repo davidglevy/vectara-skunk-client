@@ -19,6 +19,7 @@ class SummaryError(Exception):
         # Call the base class constructor with the parameters it needs
         super().__init__(message)
 
+
 class QueryService():
 
     def __init__(self, request_util: RequestUtil, customer_id: int):
@@ -27,13 +28,21 @@ class QueryService():
         self.customer_id = customer_id
 
     def query(self, query_text: str, corpus_id: int, start: int = 0, page_size: int = 10,
-              summary: bool = True, response_lang:str='en'):
-        corpus_key_dict = {'customerId': self.customer_id, 'corpusId': corpus_id}
-        query_dict = {'query': query_text, 'numResults': page_size, 'corpusKey': [corpus_key_dict]}
+              summary: bool = True, response_lang: str = 'en'):
+
+        corpus_key_dict = {'customerId': self.customer_id,
+                           'corpusId': corpus_id,
+                           'semantics': 'DEFAULT'
+                           }
+        query_dict = {
+            'query': query_text,
+            'numResults': page_size,
+            'corpusKey': [corpus_key_dict]
+        }
 
         if summary:
             if response_lang:
-                self.logger.info(f"Response Language set to [{response_lang}]")
+                self.logger.debug(f"Response Language set to [{response_lang}]")
             else:
                 raise TypeError("If you are going to change from the default language (en) you must set one.")
 
@@ -47,13 +56,17 @@ class QueryService():
 
         batch_query_dict = {'query': [query_dict]}
 
-        print(f"Query is:\n{json.dumps(batch_query_dict, indent=4)}\n")
+        self.logger.debug(f"Query is:\n{json.dumps(batch_query_dict, indent=4)}\n")
 
         query = from_dict(BatchQueryRequest, batch_query_dict)
 
         # Omit nulls using our own dict factory.
         # Dataclasses feel like coding with the first XML serializers in Java in 2005 - very early.
-        final_query_dict = asdict(query, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
+        final_query_dict = asdict(query, dict_factory=_custom_asdict_factory)
+
+        # Since we can't put in "lambda" to a dataclass field due to Python using it as a reserved word,
+        # we inject it now.
+        final_query_dict['query'][0]['corpusKey'][0]['lexicalInterpolationConfig'] = {"lambda": 0.025}
 
         result = self.request_util.request("query", final_query_dict, BatchQueryResponse)
         if len(result.status) > 0:
@@ -63,4 +76,3 @@ class QueryService():
             raise SummaryError("We did not have sufficient results")
         else:
             return result.responseSet[0]
-
