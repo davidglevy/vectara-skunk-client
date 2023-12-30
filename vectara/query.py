@@ -29,7 +29,7 @@ class QueryService():
         self.customer_id = customer_id
 
     def query(self, query_text: str, corpus_id: int, start: int = 0, page_size: int = 10,
-              summary: bool = True, response_lang: str = 'en', context_config=None):
+              summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT'):
 
         if not context_config:
             context_config = {
@@ -43,7 +43,7 @@ class QueryService():
 
         corpus_key_dict = {'customerId': self.customer_id,
                            'corpusId': corpus_id,
-                           'semantics': 'DEFAULT'
+                           'semantics': semantics
                            }
         query_dict = {
             'query': query_text,
