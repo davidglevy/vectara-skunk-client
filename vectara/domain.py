@@ -287,6 +287,7 @@ class RerankingConfig:
 @dataclass
 class Summarizer:
     summarizerPromptName: str
+    promptText: str
     responseLang: str
     maxSummarizedResults: int
 

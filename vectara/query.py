@@ -29,7 +29,7 @@ class QueryService():
         self.customer_id = customer_id
 
     def query(self, query_text: str, corpus_id: int, start: int = 0, page_size: int = 10,
-              summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT'):
+              summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT', promptText=None):
 
         if not context_config:
             context_config = {
@@ -62,6 +62,8 @@ class QueryService():
                                       "responseLang": response_lang,
                                       "maxSummarizedResults": 5
                                       }]
+            if promptText:
+                query_dict['summary'][0]['promptText'] = promptText
         else:
             # Only put this in if we're not summarising.
             query_dict['start']: start
