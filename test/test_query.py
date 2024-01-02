@@ -4,7 +4,12 @@ from vectara.core import Factory
 import json
 import os
 from test.base import BaseClientTest
-from vectara.util import render_markdown, SimplePromptFactory, StandardPromptFactory
+from vectara.query import QueryService
+from vectara.util import render_markdown, SimplePromptFactory, StandardPromptFactory, ChatPromptFactory
+from vectara.chat import ChatHelper
+from test.util import create_test_corpus
+from pathlib import Path
+from vectara.core import Factory
 
 import os
 
@@ -106,6 +111,7 @@ class QueryIntegrationTest(BaseClientTest):
         self.logger.info(render_markdown(query, response))
 
     def test_query_with_prompt_generator_simple(self):
+
         """
         Test out the promptText value
 
@@ -122,3 +128,59 @@ class QueryIntegrationTest(BaseClientTest):
         response = qs.query(query, 126, promptText=prompt_text)
 
         self.logger.info(render_markdown(query, response, show_search_results=False))
+
+    def test_query_chat(self):
+        corpus_id, existing = create_test_corpus(test_name="test_query_chat")
+
+        qs = self.client.query_service
+
+        indexer_service = self.client.indexer_service
+
+        resources_dir = Path("./resources/fair_work_australia")
+
+        # Do not upload if we found existing corpus
+        if not existing:
+            result = None
+            for p in resources_dir.glob("*.pdf"):
+                result = indexer_service.upload(corpus_id, p, return_extracted=False)
+
+        prompt_factory = ChatPromptFactory(chat_persona="Friendly Human Resources employee", name="Fiona", max_word_count=150)
+
+        prompt_factory.add_assistant_message("Hi my name is Fiona, who am I speaking with today?")
+        prompt_factory.add_user_assistant_pair("My name is David",
+                                               "Okay great to meet you. What can I help you with today?")
+
+        query = "Am I entitled to paid leave in Australia?"
+
+        chat_helper = ChatHelper(corpus_id, prompt_factory, qs)
+
+        chat_helper.run_chat("How are you today?")
+        chat_helper.run_chat("Am I entitled to paid leave in Australia?")
+        chat_helper.run_chat("My employer has said that Christmas Day and "
+                             "Boxing Day counts as paid leave, is this correct?")
+        chat_helper.run_chat("I'm a permanent employee who works regular hours: 9-5, 5 days a week without special "
+                             "which only says is complies with Australia law.")
+        chat_helper.run_chat("I work as a white collar employee and am interested in Annual Leave.")
+        chat_helper.run_chat("It says I get four weeks paid annual leave in my employment contract plus public holidays")
+
+        # prompt_text = prompt_factory.build()
+        #
+        # self.logger.info(f"Prompt text is:\n {prompt_text}")
+        #
+        # qs.query(query, corpus_id, prompt_text)
+        #
+        # response = qs.query(query, corpus_id, promptText=prompt_text)
+        #
+        # self.logger.info(render_markdown(query, response, show_search_results=True))
+        # summary_response = response.summary[0].text
+        #
+        # # Now we add the additional context to  the factory.
+        # prompt_factory.add_user_assistant_pair(query, summary_response)
+        #
+        # query = "My employer has said that Christmas Day and Boxing Day counts as paid leave, is this correct?"
+
+
+
+
+
+
