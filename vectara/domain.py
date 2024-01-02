@@ -182,7 +182,7 @@ class CustomDimension:
 class Section:
     id: Optional[int]
     title: Optional[str]
-    text: str
+    text: Optional[str]
     metadataJson: Optional[str]
     customDims: Optional[List[CustomDimension]]
     section: Optional[List['Section']]
