@@ -83,6 +83,18 @@ class QueryService():
         final_query_dict['query'][0]['corpusKey'][0]['lexicalInterpolationConfig'] = {"lambda": 0.025}
 
         result = self.request_util.request("query", final_query_dict, BatchQueryResponse)
+
+        summary_status = None
+        if summary:
+            if (result.responseSet[0].summary[0].status and result.responseSet[0].summary[0].status
+                    and len(result.responseSet[0].summary[0].status and result.responseSet[0].summary[0].status) > 0):
+                # TODO Ask Tallat on Status for summary (why List)
+                # No idea if it's possible to have more than one status
+                summary_status = result.responseSet[0].summary[0].status[0]
+
+        if summary_status and summary_status.code != StatusCode.OK:
+            raise SummaryError(f"Unable to generate summary due to: {summary_status}")
+
         if len(result.status) > 0:
             # FIXME Talk to Tallat about this being empty and what it will look like when populated (OK)
             raise Exception(f"Unexpected response: {result.status}")

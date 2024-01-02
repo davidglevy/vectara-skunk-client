@@ -1,7 +1,9 @@
+import json
 from unittest import TestCase
-from vectara.util import renderMarkdown
+from vectara.util import render_markdown, SimplePromptFactory
 from vectara.domain import ResponseSet
 from dacite import from_dict
+
 
 class RenderMarkdownTest(TestCase):
 
@@ -120,8 +122,15 @@ class RenderMarkdownTest(TestCase):
 
     def testRenderMarkdown(self):
         responseSet = self.buildResponseSet()
-        result = renderMarkdown("Some awesome question", responseSet)
+        result = render_markdown("Some awesome question", responseSet)
 
         print(result)
 
+    def testSimplePromptFactory(self):
+        factory = SimplePromptFactory(system_text='You are a human resources manager who takes the search results and summarizes them as a coherent response. Only use information provided in this chat. Respond in the language denoted by ISO 639 code \\"$vectaraLangCode\\"."', user_text="")
+
+        prompt = factory.build()
+
+
+        print(prompt)
 

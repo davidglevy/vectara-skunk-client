@@ -200,7 +200,7 @@ class ResponseSetRenderer:
     def __init__(self, formatter: BaseFormatter):
         self.formatter = formatter
 
-    def render(self, query: str, responseSet: ResponseSet, rtl=False):
+    def render(self, query: str, responseSet: ResponseSet, rtl=False, show_search_results=True):
         f = self.formatter
         results = []
 
@@ -213,27 +213,158 @@ class ResponseSetRenderer:
             results.append(f.paragraph(summary_text))
 
         # Build items
-        docs = []
-        for result in responseSet.response:
-            doc_index = result.documentIndex
-            doc = responseSet.document[doc_index]
+        if show_search_results:
+            docs = []
+            for result in responseSet.response:
+                doc_index = result.documentIndex
+                doc = responseSet.document[doc_index]
 
-            item = f.sentence(result.text) + " " + f.italic("score: " + str(result.score) + ", doc-id: " + doc.id)
-            docs.append(item)
+                item = f.sentence(result.text) + " " + f.italic("score: " + str(result.score) + ", doc-id: " + doc.id)
+                docs.append(item)
 
-        list_text = f.list(docs)
-        results.append(list_text)
+            list_text = f.list(docs)
+            results.append(list_text)
 
         # TODO Build document list.
 
-        results = "".join(results)
+        results_text = "".join(results)
+
         if rtl:
-            return f.rtl(results)
+            return f.rtl(results_text)
         else:
-            return results
+            return results_text
 
 
-def render_markdown(query: str, response_set: ResponseSet, rtl=False):
+def render_markdown(query: str, response_set: ResponseSet, rtl=False, show_search_results=True):
     formatter = MarkdownFormatter()
     renderer = ResponseSetRenderer(formatter)
-    return renderer.render(query, response_set, rtl)
+    return renderer.render(query, response_set, rtl, show_search_results)
+
+
+prompt_text = (
+    '[ {"role": "system", "content": "You are a human resources manager who takes the search results and summarizes them as a coherent response. Only use information provided in this chat. Respond in the language denoted by ISO 639 code \\"$vectaraLangCode\\"."}, \n'  # ,\n'
+    '#foreach ($qResult in $vectaraQueryResults) \n'
+    '   #if ($foreach.first) \n'
+    '   {"role": "user", "content": "Search for \\"$esc.java(${vectaraQuery})\\", and give me the first search result."}, \n'
+    '   {"role": "assistant", "content": "$esc.java(${qResult.getText()})" }, \n'
+    '   #else \n'
+    '   {"role": "user", "content": "Give me the \\"$vectaraIdxWord[$foreach.index]\\" search result."}, \n'
+    '   {"role": "assistant", "content": "$esc.java(${qResult.getText()})" }, \n'
+    '   #end \n'
+    ' #end \n'
+    '{"role": "user", "content": "Generate a detailed answer (that is no more than 300 words) for the query \\"$esc.java(${vectaraQuery})\\" solely based on the search results in this chat. You must only use information from the provided results. Cite search results using \\"[number]\\" notation. Only cite the most relevant results that answer the question accurately." } ]')
+
+class BasePromptFactory(ABC):
+
+    def __init__(self):
+        pass
+
+    def build(self):
+        raise Exception("Implement in subclasses")
+
+
+class SimplePromptFactory(BasePromptFactory):
+
+    SYSTEM_PROMPT_TEMPLATE = 'You are a {persona} who takes the search results and {a_cite_text} {just_rag_text} Respond in the language denoted by ISO 639 code \\"$vectaraLangCode\\".'
+    USER_PROMPT_TEMPLATE = 'Generate a detailed answer (that is no more than {max_word_count} words) for the query \\"$esc.java(${{vectaraQuery}})\\" {just_rag_text} {b_cite_text}'
+
+    A_DO_CITE = "summarizes them as a coherent response,"
+    A_DO_NOT_CITE = "only return the most relevant answer. Do not iterate over each question,"
+
+    B_DO_CITE = 'Cite search results using \\\\\\"[number]\\\\\\" notation. Only cite the most relevant results that answer the question accurately.'
+    B_DO_NOT_CITE = 'Do not cite search results.'
+
+
+    RAG_ONLY = 'solely based on the search results in this chat. You must only use information from the provided results.'
+    ALLOW_NON_RAG = 'preferably based on the search results in this chat. You may allow additional information you know in the results.'
+
+    """
+    Generates a valid prompt text
+
+    """
+    def __init__(self, persona:str, max_word_count:int=300, cite:bool=True, just_rag=True):
+        super().__init__()
+        self.persona = persona
+        self.max_word_count= max_word_count
+        self.cite = cite
+        self.just_rag = just_rag
+
+    def build(self):
+        lines = []
+
+        if self.just_rag:
+            just_rag_text = SimplePromptFactory.RAG_ONLY
+        else:
+            just_rag_text = SimplePromptFactory.ALLOW_NON_RAG
+
+        if self.cite:
+            a_cite_text = SimplePromptFactory.A_DO_CITE
+            b_cite_text = SimplePromptFactory.B_DO_CITE
+        else:
+            a_cite_text = SimplePromptFactory.A_DO_NOT_CITE
+            b_cite_text = SimplePromptFactory.B_DO_NOT_CITE
+
+
+
+        system_prompt = SimplePromptFactory.SYSTEM_PROMPT_TEMPLATE.format(
+            persona=self.persona, just_rag_text=just_rag_text, a_cite_text=a_cite_text
+        )
+
+
+        user_prompt = SimplePromptFactory.USER_PROMPT_TEMPLATE.format(
+            max_word_count=self.max_word_count, just_rag_text=just_rag_text, b_cite_text=b_cite_text
+        )
+
+        # Append the system indicator.
+        lines.append(f'[ {{"role": "system", "content": "{system_prompt}"}}, \n')
+
+        # Append the pre-requisite 'for-loop' for RAG.
+        lines.append('#foreach ($qResult in $vectaraQueryResults) \n')
+        lines.append('   #if ($foreach.first) \n')
+        lines.append('   {"role": "user", "content": "Search for \\"$esc.java(${vectaraQuery})\\", and give me the first search result."}, \n')
+        lines.append('   {"role": "assistant", "content": "$esc.java(${qResult.getText()})" }, \n')
+        lines.append('   #else \n')
+        lines.append('   {"role": "user", "content": "Give me the \\"$vectaraIdxWord[$foreach.index]\\" search result."}, \n')
+        lines.append('   {"role": "assistant", "content": "$esc.java(${qResult.getText()})" }, \n')
+        lines.append('   #end \n')
+        lines.append(' #end \n')
+
+        # Append the Final user phrasing.
+        # TODO interpolate.
+        lines.append(f'{{"role": "user", "content": "{user_prompt}" }} ]')
+
+        return "".join(lines)
+
+class StandardPromptFactory(BasePromptFactory):
+    """
+    Generates a valid prompt text
+
+    """
+    def __init__(self, system_prompt=None, user_prompt=None):
+        super().__init__()
+        self.system_prompt = system_prompt
+        self.user_prompt = user_prompt
+
+    def build(self):
+        lines = []
+        # Append the system indicator.
+        lines.append(f'[ {{"role": "system", "content": "{self.system_prompt}"}}, \n')
+
+        # Append the pre-requisite 'for-loop' for RAG.
+        lines.append('#foreach ($qResult in $vectaraQueryResults) \n')
+        lines.append('   #if ($foreach.first) \n')
+        lines.append('   {"role": "user", "content": "Search for \\"$esc.java(${vectaraQuery})\\", and give me the first search result."}, \n')
+        lines.append('   {"role": "assistant", "content": "$esc.java(${qResult.getText()})" }, \n')
+        lines.append('   #else \n')
+        lines.append('   {"role": "user", "content": "Give me the \\"$vectaraIdxWord[$foreach.index]\\" search result."}, \n')
+        lines.append('   {"role": "assistant", "content": "$esc.java(${qResult.getText()})" }, \n')
+        lines.append('   #end \n')
+        lines.append(' #end \n')
+
+        # Append the Final user phrasing.
+        # TODO interpolate.
+        lines.append(f'{{"role": "user", "content": "{self.user_prompt}" }} ]')
+
+        return "".join(lines)
+
+
