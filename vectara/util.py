@@ -201,12 +201,12 @@ class ResponseSetRenderer:
     def __init__(self, formatter: BaseFormatter):
         self.formatter = formatter
 
-    def render(self, query: str, responseSet: ResponseSet, rtl=False, show_search_results=True):
+    def render(self, query: str, responseSet: ResponseSet, rtl=False, show_search_results=True, heading_level=1):
         f = self.formatter
         results = []
 
         # Build Heading
-        results.append(f.heading(f"Query: {query}"))
+        results.append(f.heading(f"Query: {query}", level=heading_level))
 
         # Build Summary
         if len(responseSet.summary) > 0:
@@ -236,10 +236,10 @@ class ResponseSetRenderer:
             return results_text
 
 
-def render_markdown(query: str, response_set: ResponseSet, rtl=False, show_search_results=True):
+def render_markdown(query: str, response_set: ResponseSet, rtl=False, show_search_results=True, heading_level=1):
     formatter = MarkdownFormatter()
     renderer = ResponseSetRenderer(formatter)
-    return renderer.render(query, response_set, rtl, show_search_results)
+    return renderer.render(query, response_set, rtl, show_search_results, heading_level)
 
 
 prompt_text = (
