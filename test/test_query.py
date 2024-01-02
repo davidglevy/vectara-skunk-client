@@ -144,15 +144,10 @@ class QueryIntegrationTest(BaseClientTest):
             for p in resources_dir.glob("*.pdf"):
                 result = indexer_service.upload(corpus_id, p, return_extracted=False)
 
-        prompt_factory = ChatPromptFactory(chat_persona="Friendly Human Resources employee", name="Fiona", max_word_count=150)
+        #prompt_factory = ChatPromptFactory(chat_persona="Friendly Human Resources employee", name="Fiona", max_word_count=150)
 
-        prompt_factory.add_assistant_message("Hi my name is Fiona, who am I speaking with today?")
-        prompt_factory.add_user_assistant_pair("My name is David",
-                                               "Okay great to meet you. What can I help you with today?")
-
-        query = "Am I entitled to paid leave in Australia?"
-
-        chat_helper = ChatHelper(corpus_id, prompt_factory, qs)
+        chat_helper = ChatHelper(corpus_id, qs, customer_name="David", name="Rachel", max_word_count=150,
+                                 chat_persona="A Pleasant Legal Officer at Fair Work Australia")
 
         chat_helper.run_chat("How are you today?")
         chat_helper.run_chat("Am I entitled to paid leave in Australia?")
@@ -162,23 +157,6 @@ class QueryIntegrationTest(BaseClientTest):
                              "which only says is complies with Australia law.")
         chat_helper.run_chat("I work as a white collar employee and am interested in Annual Leave.")
         chat_helper.run_chat("It says I get four weeks paid annual leave in my employment contract plus public holidays")
-
-        # prompt_text = prompt_factory.build()
-        #
-        # self.logger.info(f"Prompt text is:\n {prompt_text}")
-        #
-        # qs.query(query, corpus_id, prompt_text)
-        #
-        # response = qs.query(query, corpus_id, promptText=prompt_text)
-        #
-        # self.logger.info(render_markdown(query, response, show_search_results=True))
-        # summary_response = response.summary[0].text
-        #
-        # # Now we add the additional context to  the factory.
-        # prompt_factory.add_user_assistant_pair(query, summary_response)
-        #
-        # query = "My employer has said that Christmas Day and Boxing Day counts as paid leave, is this correct?"
-
 
 
 
