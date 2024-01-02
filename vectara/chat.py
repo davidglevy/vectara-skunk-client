@@ -35,4 +35,4 @@ class ChatHelper:
         # Now we add the additional context to  the factory.
         self.prompt_factory.add_user_assistant_pair(query, summary_response)
 
-        return summary_response
+        return response
