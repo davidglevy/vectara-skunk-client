@@ -37,7 +37,7 @@ class Factory():
         self.config_json = config_json
         self.profile = profile
 
-    def build(self):
+    def build(self) -> Client:
         """
         Builds our client using the configuration which .
         :return:

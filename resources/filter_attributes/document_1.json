@@ -1,0 +1,10 @@
+{
+  "document_id": "doc-id-1",
+  "title": "Rental 10 McMann St, Evatt",
+  "metadata_json": "{ \"customer_id\": \"1234\",\n\"current\": true}",
+  "section": [
+    {
+      "text": "A stunning three bedroom house overlooking a lake"
+    }
+  ]
+}

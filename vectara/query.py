@@ -5,7 +5,7 @@ from dataclasses import asdict
 from vectara.authn import BaseAuthUtil
 from vectara.domain import *
 from dacite import from_dict
-from typing import Type, Any, List, TypeVar
+from typing import Type, Any, List, TypeVar, Union
 from vectara.dao import CorpusDao
 from vectara.status import StatusCode
 from vectara.util import _custom_asdict_factory, RequestUtil
@@ -28,8 +28,16 @@ class QueryService():
         self.request_util = request_util
         self.customer_id = customer_id
 
-    def query(self, query_text: str, corpus_id: int, start: int = 0, page_size: int = 10,
-              summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT', promptText=None):
+    def query(self, query_text: str, corpus_id: Union[int, List[int]], start: int = 0, page_size: int = 10,
+              summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT',
+              promptText=None, metadata:str=None):
+
+        # Convert singular int to List of corpus ids.
+        if type(corpus_id) is list:
+            corpus_ids = corpus_id
+        else:
+            corpus_ids = [corpus_id]
+
 
         if not context_config:
             context_config = {
@@ -41,15 +49,22 @@ class QueryService():
                 'endTag': '</b>'
             }
 
-        corpus_key_dict = {'customerId': self.customer_id,
-                           'corpusId': corpus_id,
+        corpus_keys = []
+        for id in corpus_ids:
+            corpus_key = {'customerId': self.customer_id,
+                           'corpusId': id,
                            'semantics': semantics
                            }
+            if metadata:
+                corpus_key['metadataFilter'] = metadata
+
+            corpus_keys.append(corpus_key)
+
         query_dict = {
             'query': query_text,
             'numResults': page_size,
             'contextConfig': context_config,
-            'corpusKey': [corpus_key_dict]
+            'corpusKey': corpus_keys
         }
 
         if summary:

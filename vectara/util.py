@@ -33,9 +33,11 @@ class RequestUtil:
         self.logger = logging.getLogger(__class__.__name__)
         self.auth_util = auth_util
 
-    def request(self, operation: str, payload, to_class: Type[T], method="POST") -> T:
+    def request(self, operation: str, payload, to_class: Type[T] = None, method="POST") -> T:
         """
 
+        :param method:
+        :param to_class:
         :param operation: the REST operation to perform.
         :param payload: the payload which will be serialized.
         :return:
@@ -56,7 +58,12 @@ class RequestUtil:
         response = requests.request(method, url, headers=headers, data=payload_json)
 
         if response.status_code == 200:
-            return from_dict(to_class, json.loads(response.text))
+            if to_class:
+                return from_dict(to_class, json.loads(response.text))
+            elif response.text:
+                return json.loads(response.text)
+            else:
+                return
         else:
             self.logger.error(f"Received non 200 response {response.status_code}, throwing exception")
             response.raise_for_status()

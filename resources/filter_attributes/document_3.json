@@ -1,0 +1,10 @@
+{
+  "document_id": "doc-id-3",
+  "title": "Appt 5, Dungeon, Evil Castle, Volcano-ville.",
+  "metadata_json": "{ \"customer_id\": \"5678\",\n\"current\": true}",
+  "section": [
+    {
+      "text": "A apartment in the castle of an Evil Wizard who lives on top of a volcano. Can be warm at times."
+    }
+  ]
+}

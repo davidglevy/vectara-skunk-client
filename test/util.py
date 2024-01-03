@@ -1,5 +1,7 @@
 from vectara.core import Factory
-
+from vectara.domain import Attribute
+from typing import List
+from unittest import TestCase
 import logging
 import os
 
@@ -49,3 +51,21 @@ def create_test_corpus(test_name: str, username_prefix=True, quiet=False, recrea
 
     logger.info(f"New test created with id [{corpus_id}]")
     return corpus_id, False
+
+
+def check_metadata(test: TestCase, expected: dict, result: List[Attribute]):
+    for key in expected.keys():
+        expected_value = expected[key]
+        found = False
+        result_value = None
+        for attr in result:
+            if attr.name == key:
+                found = True
+                result_value = attr.value
+                break
+        # First check attribute was found
+        test.assertTrue(found, f"We did not find expected metadata in response with name [{key}]")
+
+        # Next, check attribute had expected value
+        test.assertEqual(expected_value, result_value, f"We were expecting a metadata attribute [{key}] with "
+                                                        f"value [{expected_value}] but found [{result_value}]")

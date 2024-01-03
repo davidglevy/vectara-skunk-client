@@ -358,3 +358,46 @@ class BatchQueryResponse:
     responseSet: Optional[List[ResponseSet]]
     status: List[Status]
     metrics: Optional[PerformanceMetrics]
+
+@dataclass
+class CoreDocumentPart:
+    text: Optional[str]
+    context: Optional[str]
+    metadata_json: Optional[str]
+    custom_dims: Optional[List[CustomDimension]]
+
+@dataclass
+class CoreDocument:
+    """
+    Something odd
+    """
+    document_id: str
+    title: str
+    metadata_json: Optional[str]
+    section: Optional[List[CoreDocumentPart]]
+    #default_part_context: Optional[str]
+    custom_dims: Optional[List[CustomDimension]]
+
+@dataclass
+class IndexDocumentRequest:
+    """
+    See core_services.proto
+    """
+    customer_id: int
+    corpus_id: int
+    document: CoreDocument
+
+@dataclass
+class IndexDocumentResponse:
+    """
+    See core_services.proto
+    """
+    status: Status
+    quotaConsumed: Optional[StorageQuota]
+
+    def __post_init__(self):
+        """
+        Funky behavior to clear the status if it doesn't have a code
+        """
+        if not self.status.code:
+            self.__setattr__("status", None)

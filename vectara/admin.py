@@ -40,7 +40,7 @@ class AdminService():
         # TODO Validate that there is 1 corpus and what happens if it doesn't exist.
         return response.corpora[0]
 
-    def _create_corpus_inner(self, request: CreateCorpusRequest):
+    def _create_corpus_inner(self, request: CreateCorpusRequest) -> CreateCorpusResponse:
         payload = asdict(request, dict_factory=_custom_asdict_factory)
         response = self.request_util.request("create-corpus", payload, CreateCorpusResponse)
         if response.status.code == StatusCode.OK:
@@ -54,7 +54,7 @@ class AdminService():
         return self._create_corpus_inner(request)
 
     def create_corpus(self, name=None, description: str = None, custom_dimensions: List[Dimension] = None,
-                      filter_attributes: List[FilterAttribute] = None):
+                      filter_attributes: List[FilterAttribute] = None) -> CreateCorpusResponse:
 
         # First create our domain request
         corpus = from_dict(Corpus, {
