@@ -6,6 +6,7 @@ from typing import Type, TypeVar, List
 from dacite import from_dict
 from pathlib import Path
 from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 import logging
 import json
@@ -105,33 +106,33 @@ class RequestUtil:
                         unit_scale=True,
                         unit_divisor=1024
                 ) as bar:
+                    with logging_redirect_tqdm():
+                        with open(path, 'rb') as f:
 
-                    with open(path, 'rb') as f:
+                            # TODO Get mimetype for extension.
 
-                        # TODO Get mimetype for extension.
+                            if params:
+                                params['file'] = (tracker_file_name, f, 'application/pdf')
+                            else:
+                                params = {'file': (tracker_file_name, f, 'application/pdf')}
 
-                        if params:
-                            params['file'] = (tracker_file_name, f, 'application/pdf')
-                        else:
-                            params = {'file': (tracker_file_name, f, 'application/pdf')}
+                            # This doesn't yet include the boundary
 
-                        # This doesn't yet include the boundary
+                            encoder = MultipartEncoder(fields=params)
 
-                        encoder = MultipartEncoder(fields=params)
+                            headers['Content-Type'] = encoder.content_type
 
-                        headers['Content-Type'] = encoder.content_type
+                            m = MultipartEncoderMonitor(
+                                encoder, lambda monitor: bar.update(monitor.bytes_read - bar.n)
+                            )
 
-                        m = MultipartEncoderMonitor(
-                            encoder, lambda monitor: bar.update(monitor.bytes_read - bar.n)
-                        )
+                            response = requests.post(upload_url, data=m, headers=headers)
 
-                        response = requests.post(upload_url, data=m, headers=headers)
-
-                        if response.status_code == 200:
-                            return from_dict(UploadDocumentResponse, json.loads(response.text))
-                        else:
-                            self.logger.error(f"Received non 200 response {response.status_code}: {response.text}")
-                            response.raise_for_status()
+                            if response.status_code == 200:
+                                return from_dict(UploadDocumentResponse, json.loads(response.text))
+                            else:
+                                self.logger.error(f"Received non 200 response {response.status_code}: {response.text}")
+                                response.raise_for_status()
 
         elif input_file_name:
             raise Exception("Re-implement after refactor")

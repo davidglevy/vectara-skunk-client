@@ -1,10 +1,13 @@
 from unittest import TestCase
 import logging
 from vectara.core import Factory, Client
-from vectara.domain import Corpus, FilterAttribute, FilterAttributeType, FilterAttributeLevel
+from vectara.domain import (Corpus, FilterAttribute, FilterAttributeType, FilterAttributeLevel, UploadDocumentResponse,
+                            IndexDocumentResponse)
 from vectara.query import QueryService
 from vectara.admin import AdminService
 from vectara.index import IndexerService
+
+from typing import Union
 from dacite import from_dict
 from pathlib import Path
 
@@ -99,7 +102,14 @@ class BaseClientTest(TestCase):
                                              filter_attributes=self._create_corpus_filter_attrs())
             self.corpus_id = resp.corpusId
 
-    def upload_test_doc(self, doc_name):
+    def upload_test_doc(self, doc_name:str, force=False, metadata:dict=None) -> Union[UploadDocumentResponse, None]:
+        """
+        Uploads a binary document via the upload API.
+        :param doc_name: the path to our file to upload
+        :param force: upload our test document even if already present, this may be useful when checking response
+        :param metadata: additional metadata to add to the documednt
+        :return:
+        """
         path = Path(doc_name)
         self.logger.info(f"Checking if we need to upload test Document [{path.name}]")
 
@@ -107,11 +117,16 @@ class BaseClientTest(TestCase):
         sha1_hash = calculate_sha1(doc_name)
 
         # Run a query without summarization with a doc_id and metadata sha1 hash check
-        metadata_filter = f"doc.id = '{path.name}'"
-        resp = self.query_service.query(path.name, self.corpus_id, summary=False, metadata=metadata_filter)
+        resp = None
+        if not force:
+            metadata_filter = f"doc.id = '{path.name}'"
+            resp = self.query_service.query(path.name, self.corpus_id, summary=False, metadata=metadata_filter)
 
         upload = False
-        if len(resp.document) == 0:
+        if force:
+            self.logger.info("Forcing upload")
+            upload = True
+        elif len(resp.document) == 0:
             self.logger.info("No existing documents, will upload test document.")
             upload = True
         elif len(resp.document) > 1:
@@ -133,10 +148,15 @@ class BaseClientTest(TestCase):
         # If not found, upload.
         if upload:
             self.logger.info(f"Uploading test document [{path}]")
-            metadata = {'sha1_hash': sha1_hash}
-            self.indexer_service.upload(self.corpus_id, path, metadata=metadata)
+            if metadata:
+                metadata['sha1_hash'] = sha1_hash
+            else:
+                metadata = {'sha1_hash': sha1_hash}
+            return self.indexer_service.upload(self.corpus_id, path, metadata=metadata)
+        else:
+            return None
 
-    def index_test_doc(self, doc_name):
+    def index_test_doc(self, doc_name, force=False) -> Union[IndexDocumentResponse, None]:
         path = Path(doc_name)
         self.logger.info(f"Checking if we need to index test Document [{path.name}]")
 
@@ -148,12 +168,17 @@ class BaseClientTest(TestCase):
 
         doc_id = document_dict['document_id']
         # Run a query without summarization with a doc_id and metadata sha1 hash check
-        metadata_filter = f"doc.id = '{doc_id}'"
-        resp = self.query_service.query(path.name, self.corpus_id, summary=False, metadata=metadata_filter)
+        resp = None
+        if not force:
+            metadata_filter = f"doc.id = '{doc_id}'"
+            resp = self.query_service.query(path.name, self.corpus_id, summary=False, metadata=metadata_filter)
 
         index = False
-        if len(resp.document) == 0:
-            self.logger.info("No existing documents, will upload test document.")
+        if force:
+            self.logger.info("Force index set, we will send document to be indexed, overriding existing")
+            index = True
+        elif len(resp.document) == 0:
+            self.logger.info("No existing documents, will index test document.")
             index = True
         elif len(resp.document) > 1:
             raise Exception(f"Two documents found with same id [{doc_id}]")
@@ -182,6 +207,8 @@ class BaseClientTest(TestCase):
                 repl_metadata = {'sha1_hash': sha1_hash}
             document_dict['metadata_json'] = json.dumps(repl_metadata)
 
-            self.indexer_service.index_doc(self.corpus_id, document_dict)
+            return self.indexer_service.index_doc(self.corpus_id, document_dict)
+        else:
+            return None
 
 

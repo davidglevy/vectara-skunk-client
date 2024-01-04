@@ -165,6 +165,10 @@ class DeleteCorpusRequest:
 class DeleteCorpusResponse:
     status: Status
 
+@dataclass
+class CalculateCorpusSizeResponse:
+    size: CorpusSize
+    status: Status
 
 @dataclass
 class StorageQuota:
