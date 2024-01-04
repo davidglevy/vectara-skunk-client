@@ -35,7 +35,8 @@ class AdminService():
 
     def calculate_corpus_size(self, corpus_id: int):
         payload = {'customer_id': self.customer_id, 'corpus_id': corpus_id}
-        return self.request_util.request("compute-corpus-size", payload, CalculateCorpusSizeResponse)
+        resp = self.request_util.request("compute-corpus-size", payload, CalculateCorpusSizeResponse)
+        return resp
 
     def read_corpus(self, corpus_id: int) -> CorpusInfo:
         request = ReadCorpusRequest([corpus_id], True, True, True, True, True, True)

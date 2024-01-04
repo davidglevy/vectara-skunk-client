@@ -117,16 +117,15 @@ class BaseClientTest(TestCase):
         sha1_hash = calculate_sha1(doc_name)
 
         # Run a query without summarization with a doc_id and metadata sha1 hash check
-        resp = None
-        if not force:
-            metadata_filter = f"doc.id = '{path.name}'"
-            resp = self.query_service.query(path.name, self.corpus_id, summary=False, metadata=metadata_filter)
+        metadata_filter = f"doc.id = '{path.name}'"
+        resp = self.query_service.query(path.name, self.corpus_id, summary=False, metadata=metadata_filter)
 
         upload = False
         if force:
             self.logger.info("Forcing upload")
             upload = True
-        elif len(resp.document) == 0:
+
+        if len(resp.document) == 0:
             self.logger.info("No existing documents, will upload test document.")
             upload = True
         elif len(resp.document) > 1:
@@ -134,11 +133,12 @@ class BaseClientTest(TestCase):
         else:
             # If found, do nothing.
             existing_sha1_hash = ""
-            for metadata in resp.document[0].metadata:
-                if metadata.name == 'sha1_hash':
-                    existing_sha1_hash = metadata.value
+            for metadata_attr in resp.document[0].metadata:
+                if metadata_attr.name == 'sha1_hash':
+                    existing_sha1_hash = metadata_attr.value
                     break
-            if existing_sha1_hash != sha1_hash:
+            if existing_sha1_hash != sha1_hash or force:
+                # We had to introduce 'or force', as a change in metadata doesn't change the core sha1 has of document
                 self.logger.info(f"Test document [{path.name}] hash different SHA1 hash to repository, re-uploading")
                 self.indexer_service.delete(self.corpus_id, path.name)
                 upload = True
@@ -168,16 +168,15 @@ class BaseClientTest(TestCase):
 
         doc_id = document_dict['document_id']
         # Run a query without summarization with a doc_id and metadata sha1 hash check
-        resp = None
-        if not force:
-            metadata_filter = f"doc.id = '{doc_id}'"
-            resp = self.query_service.query(path.name, self.corpus_id, summary=False, metadata=metadata_filter)
+        metadata_filter = f"doc.id = '{doc_id}'"
+        resp = self.query_service.query(path.name, self.corpus_id, summary=False, metadata=metadata_filter)
 
         index = False
         if force:
             self.logger.info("Force index set, we will send document to be indexed, overriding existing")
             index = True
-        elif len(resp.document) == 0:
+
+        if len(resp.document) == 0:
             self.logger.info("No existing documents, will index test document.")
             index = True
         elif len(resp.document) > 1:

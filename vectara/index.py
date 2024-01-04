@@ -1,7 +1,17 @@
-from typing import List
+"""
+This module contains the IndexerService class.
 
-import requests
+@Author: David Levy
+@Date: 4/1/2024 (dd/mm/yyyy)
+@Links: https://docs.vectara.com/docs/api-reference/indexing-apis/indexing
+@Links: https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload
+@Links: https://docs.vectara.com/docs/api-reference/indexing-apis/deleting-documents
 
+Tasks
+* TODO We should provide a method to check prior uploads via sha1_hash as per BaseClientTest
+* TODO There's likely a higher abstraction here which will check for doc existing and allow overwrites (CorpusManager?)
+* TODO Investigate whether I need the lower level API too
+"""
 from vectara.authn import BaseAuthUtil
 from vectara.domain import UploadDocumentResponse, CoreDocument, IndexDocumentRequest, IndexDocumentResponse
 from vectara.util import RequestUtil
@@ -11,12 +21,24 @@ from dacite import from_dict
 from dataclasses import asdict
 import logging
 import json
-import os
 
 
-class IndexerService():
+class IndexerService:
+    """
+    Wrapper for the Vectara index REST API
 
-    def __init__(self, auth_util:BaseAuthUtil, request_util: RequestUtil, customer_id: int):
+    One instantiation per customer id
+
+    """
+
+    def __init__(self, auth_util: BaseAuthUtil, request_util: RequestUtil, customer_id: int):
+        """
+        Inject the dependencies for IndexerService that are configured in our factory
+
+        :param auth_util: dependent authentication utility
+        :param request_util: dependent request utility
+        :param customer_id: the customer id for this account
+        """
         self.logger = logging.getLogger(__class__.__name__)
         self.request_util = request_util
         self.customer_id = customer_id
@@ -60,48 +82,6 @@ class IndexerService():
         params['doc_metadata'] = json.dumps(metadata)
 
         return self.request_util.multipart_post("upload", path_str=path, input_contents=input_contents, input_file_name=input_file_name, params=params, headers=headers)
-
-    # def upload_old(self, corpus_id: int, path: str = None, input_contents: bytes = None, input_file_name: str = None,
-    #                return_extracted: bool = None, metadata: dict = None) -> UploadDocumentResponse:
-    #
-    #     files = None
-    #     if path and input_file_name:
-    #         raise TypeError("You must specify either the path or the file_name")
-    #     elif path:
-    #         file_name = path.split(os.sep)[-1]
-    #
-    #         with open(path, 'rb') as f:
-    #             contents = f.read()
-    #
-    #         files = {'file': (file_name, contents), 'c': self.customer_id, 'o': corpus_id}
-    #     elif input_file_name:
-    #         files = {'file': (input_file_name, input_contents), 'c': self.customer_id, 'o': corpus_id}
-    #
-    #     if metadata:
-    #         files['doc_metadata'] = json.dumps(metadata)
-    #
-    #     headers = self.auth_util.get_headers()
-    #     #headers['c'] = str(self.customer_id)
-    #     #headers['o'] = str(corpus_id)
-    #
-    #     self.logger.info(f"Headers: {json.dumps(headers)}")
-    #
-    #     params = {'c': self.customer_id, 'o': corpus_id}
-    #     if return_extracted:
-    #         params['d'] = True
-    #
-    #     url = f"https://api.vectara.io/v1/upload"
-    #     response = requests.post(url, headers=headers, files=files, params=params)
-    #
-    #     print(response)
-    #
-    #     if response.status_code == 200:
-    #         index_response = from_dict(UploadDocumentResponse, json.loads(response.text))
-    #         return index_response
-    #     else:
-    #         self.logger.error(f"Received non 200 response {response.status_code}, throwing exception")
-    #         response.raise_for_status()
-
 
 
     def delete(self, corpus_id: int, document_id: str):

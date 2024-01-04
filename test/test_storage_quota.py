@@ -1,6 +1,5 @@
 import unittest
 from test.base import BaseClientTest
-from test.util import check_metadata
 
 
 class StorageQuotaTest(BaseClientTest):
@@ -17,8 +16,11 @@ class StorageQuotaTest(BaseClientTest):
         :return:
         """
 
-        resp1 = self.upload_test_doc("./resources/research/D19-5819.pdf", force=True)
-        resp2 = self.upload_test_doc("./resources/fair_work_australia/C2023A00043.pdf", force=True)
+        dict1 = {"lets_also_check": "custom_metadata"}
+        dict2 = {"does_not": "create_a_difference"}
+
+        resp1 = self.upload_test_doc("./resources/research/D19-5819.pdf", force=True, metadata=dict1)
+        resp2 = self.upload_test_doc("./resources/fair_work_australia/C2023A00043.pdf", force=True, metadata=dict2)
         resp3 = self.upload_test_doc("./resources/fair_work_australia/F2024C00002.pdf", force=True)
 
         total_consumed = 0
