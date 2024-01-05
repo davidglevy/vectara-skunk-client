@@ -7,8 +7,14 @@ to your Retrieval Augmented Generation (RAG) pipeline.
 
 1. Generate either an API Key or OAuth2 App from within Vectara's console.
 2. Put these into a configuration ".vec_auth.yaml" in your home directory.
-3. Invoke vectara.core.Factory.build() which will load the default authentication profile.
-4. Build awesome GenerativeAI pipelines.
+3. Install library `vectara-skunk-client` with pip
+4. Invoke vectara.core.Factory.build() which will load the default authentication profile.
+5. Build awesome GenerativeAI applications.
+
+```bash
+pip install vectara-skunk-client
+```
+
 
 ```python
 from vectara.core import Factory
