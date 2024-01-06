@@ -30,7 +30,7 @@ class QueryService():
 
     def query(self, query_text: str, corpus_id: Union[int, List[int]], start: int = 0, page_size: int = 10,
               summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT',
-              promptText=None, metadata:str=None):
+              promptText=None, metadata:str=None, summarizer:str="vectara-summary-ext-v1.3.0"):
 
         # Convert singular int to List of corpus ids.
         if type(corpus_id) is list:
@@ -76,7 +76,7 @@ class QueryService():
 
             # Old: vectara-summary-ext-v1.2.0
             # New: vectara-summary-ext-v1.2.3
-            query_dict['summary'] = [{"summarizerPromptName": "vectara-summary-ext-v1.3.0",
+            query_dict['summary'] = [{"summarizerPromptName": summarizer,
                                       "responseLang": response_lang,
                                       "maxSummarizedResults": 5
                                       }]
