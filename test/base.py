@@ -82,6 +82,9 @@ class BaseClientTest(TestCase):
         # Check if test corpus exists
         corpora = self.admin_service.list_corpora(self.test_corpus_name)
 
+        # First do a filter on exact name in case any tests use similar names.
+        corpora = list(filter(lambda corpus: corpus.name == self.test_corpus_name, corpora))
+
         #    # TODO temporarily ignore this option.
         if len(corpora) == 1:
             self.logger.info("Found existing test corpus")
