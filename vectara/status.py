@@ -153,6 +153,7 @@ class Status:
     code: Optional[str | StatusCode]
     #code_enum: Optional[StatusCode]
     statusDetail: Optional[str]
+    cause: Optional[str]
 
     def __post_init__(self):
         """

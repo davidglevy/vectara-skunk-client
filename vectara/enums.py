@@ -15,3 +15,15 @@ class ApiKeyStatus(Enum):
     DISABLED = 2
     DELETED = 3
 
+class ApiKeySort(Enum):
+    START_TS = 0,
+    END_TS = 1,
+    DESCRIPTION = 2,
+    KEY_TYPE = 3,
+    STATUS = 4
+
+class SortDirection(Enum):
+    ASC = 0,
+    DESC = 1
+
+

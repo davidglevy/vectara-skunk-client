@@ -405,3 +405,57 @@ class IndexDocumentResponse:
         """
         if not self.status.code:
             self.__setattr__("status", None)
+
+
+@dataclass
+class CreateApiKeyResponseInner:
+    keyId: str
+    status: Status
+
+
+@dataclass
+class CreateApiKeyResponse:
+    response: List[CreateApiKeyResponseInner]
+
+
+@dataclass
+class ModifyApiKeyResponse:
+    status: List[Status]
+
+
+@dataclass
+class EnableApiKeyRequestInner:
+    keyId: str
+    enable: bool
+
+
+@dataclass
+class EnableApiKeyRequest:
+    keyEnablement: List[EnableApiKeyRequestInner]
+
+@dataclass
+class CorpusShort:
+    id: int
+    name: str
+
+
+@dataclass
+class KeyData:
+    apiKey: ApiKey
+    corpus: List[CorpusShort]
+
+
+@dataclass
+class ListApiKeysResponse:
+    keyData: List[KeyData]
+    pageKey: Optional[str]
+    status: Status
+
+@dataclass
+class PagedApiKeyResponse:
+    # FIXME Move this into vectara-client-manager
+    total_results: int
+    total_pages: int
+    current_page: int
+    page_size: int
+#    sort_field:
