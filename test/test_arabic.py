@@ -17,6 +17,15 @@ class TestArabic(BaseClientTest):
 
         self.logger.info(render_markdown(query, resp))
 
+    def test_arabic_with_summary_gpt4_resp_ar(self):
+        qs = self.query_service
+
+        query = "Is it important to develop the Kingdom’s economy by increasing employment opportunities?"
+        resp = qs.query(query, self.corpus_id, summarizer="vectara-summary-ext-v1.3.0", response_lang="ar")
+
+        self.logger.info(render_markdown(query, resp, rtl=True))
+
+
     def test_arabic_with_summary_gpt3_5(self):
         qs = self.query_service
 
