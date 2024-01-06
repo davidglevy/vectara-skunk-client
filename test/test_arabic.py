@@ -25,6 +25,13 @@ class TestArabic(BaseClientTest):
 
         self.logger.info(render_markdown(query, resp))
 
+    def test_no_summary(self):
+        qs = self.query_service
+
+        query = "Is it important to develop the Kingdom’s economy by increasing employment opportunities?"
+        resp = qs.query(query, self.corpus_id, summary=False)
+
+        self.logger.info(render_markdown(query, resp, expect_summary=False))
 
 
 

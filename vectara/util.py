@@ -209,7 +209,8 @@ class ResponseSetRenderer:
     def __init__(self, formatter: BaseFormatter):
         self.formatter = formatter
 
-    def render(self, query: str, responseSet: ResponseSet, rtl=False, show_search_results=True, heading_level=1):
+    def render(self, query: str, responseSet: ResponseSet, rtl=False, show_search_results=True, heading_level=1,
+               expect_summary=True):
         f = self.formatter
         results = []
 
@@ -217,9 +218,14 @@ class ResponseSetRenderer:
         results.append(f.heading(f"Query: {query}", level=heading_level))
 
         # Build Summary
-        if len(responseSet.summary) > 0:
-            summary_text = responseSet.summary[0].text
-            results.append(f.paragraph(summary_text))
+        if expect_summary:
+            if len(responseSet.summary) > 0:
+                summary_text = responseSet.summary[0].text
+                results.append(f.paragraph(summary_text))
+            else:
+                summary_text = "We did not receive a summary, there are insufficient results returned from the corpus"
+                results.append(f.paragraph(summary_text))
+
 
         # Build items
         if show_search_results:
@@ -244,10 +250,11 @@ class ResponseSetRenderer:
             return results_text
 
 
-def render_markdown(query: str, response_set: ResponseSet, rtl=False, show_search_results=True, heading_level=1):
+def render_markdown(query: str, response_set: ResponseSet, rtl=False, show_search_results=True, heading_level=1,
+                    expect_summary=True):
     formatter = MarkdownFormatter()
     renderer = ResponseSetRenderer(formatter)
-    return renderer.render(query, response_set, rtl, show_search_results, heading_level)
+    return renderer.render(query, response_set, rtl, show_search_results, heading_level, expect_summary=expect_summary)
 
 
 prompt_text = (
