@@ -79,7 +79,8 @@ class IndexerService:
         if return_extracted:
             params['d'] = str(True)
 
-        params['doc_metadata'] = json.dumps(metadata)
+        if metadata:
+            params['doc_metadata'] = json.dumps(metadata)
 
         return self.request_util.multipart_post("upload", path_str=path, input_contents=input_contents, input_file_name=input_file_name, params=params, headers=headers)
 
