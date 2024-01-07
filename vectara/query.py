@@ -117,7 +117,7 @@ class QueryService():
             # FIXME Talk to Tallat about this being empty and what it will look like when populated (OK)
             raise Exception(f"Unexpected response: {result.status}")
         elif summary and not re.search(r"\[[0-9]+\]", result.responseSet[0].summary[0].text):
-            status = Status("INVALID_ARGUMENT", None)
+            status = Status("INVALID_ARGUMENT", None, None)
 
             result.responseSet[0].summary[0].status = status
             return result.responseSet[0]

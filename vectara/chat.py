@@ -15,7 +15,7 @@ class ChatHelper:
         self.prompt_factory.add_assistant_message(f"Hi my name is {name}, who am I speaking with today?")
         self.prompt_factory.add_user_assistant_pair(f"My name is {customer_name}",
                                                     "Okay great to meet you. What can I help you with today?")
-        self.resp_lang=resp_lang
+        self.resp_lang = resp_lang
 
         self.log_response = log_response
 
