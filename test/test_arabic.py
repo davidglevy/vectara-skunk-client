@@ -1,7 +1,8 @@
 import unittest
 from test.base import BaseClientTest
-from vectara.util import render_markdown
-
+from vectara.util import render_markdown, _custom_asdict_factory
+from dataclasses import asdict
+import json
 
 class TestArabic(BaseClientTest):
 
@@ -27,10 +28,23 @@ class TestArabic(BaseClientTest):
 
 
     def test_arabic_with_summary_gpt3_5(self):
+        """
+        Tests that we can run with shorter context
+        """
         qs = self.query_service
 
+        context_config = {
+            'charsBefore': 0, # Ignored if sentences specified
+            'charsAfter': 0,
+            'sentencesBefore': 1,  # For our test we reduce from 2 (default)
+            'sentencesAfter': 1,
+            'startTag': '<b>',
+            'endTag': '</b>'
+        }
+
         query = "Is it important to develop the Kingdom’s economy by increasing employment opportunities?"
-        resp = qs.query(query, self.corpus_id, summarizer="vectara-summary-ext-v1.2.0")
+        resp = qs.query(query, self.corpus_id, summarizer="vectara-summary-ext-v1.2.0",
+                        context_config=context_config)
 
         self.logger.info(render_markdown(query, resp))
 
@@ -41,6 +55,9 @@ class TestArabic(BaseClientTest):
         resp = qs.query(query, self.corpus_id, summary=False)
 
         self.logger.info(render_markdown(query, resp, expect_summary=False))
+
+        #self.logger.info("Request was: " + json.dumps(self.client.get_requests()[-1],indent=4))
+        self.logger.info("Response was: " + json.dumps(asdict(resp, dict_factory=_custom_asdict_factory), indent=4))
 
 
 

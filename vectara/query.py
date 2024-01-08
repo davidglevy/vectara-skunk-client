@@ -30,7 +30,8 @@ class QueryService():
 
     def query(self, query_text: str, corpus_id: Union[int, List[int]], start: int = 0, page_size: int = 10,
               summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT',
-              promptText=None, metadata:str=None, summarizer:str="vectara-summary-ext-v1.3.0"):
+              promptText=None, metadata: str = None, summarizer: str = "vectara-summary-ext-v1.3.0",
+              summary_result_count=5, re_rank=False):
 
         # Convert singular int to List of corpus ids.
         if type(corpus_id) is list:
@@ -38,13 +39,12 @@ class QueryService():
         else:
             corpus_ids = [corpus_id]
 
-
         if not context_config:
             context_config = {
                 'charsBefore': 30,
                 'charsAfter': 30,
-                'sentencesBefore': 1,
-                'sentencesAfter': 1,
+                'sentencesBefore': 2,  # Change to align with UI to 2
+                'sentencesAfter': 2,
                 'startTag': '<b>',
                 'endTag': '</b>'
             }
@@ -52,9 +52,9 @@ class QueryService():
         corpus_keys = []
         for id in corpus_ids:
             corpus_key = {'customerId': self.customer_id,
-                           'corpusId': id,
-                           'semantics': semantics
-                           }
+                          'corpusId': id,
+                          'semantics': semantics
+                          }
             if metadata:
                 corpus_key['metadataFilter'] = metadata
 
@@ -67,18 +67,25 @@ class QueryService():
             'corpusKey': corpus_keys
         }
 
+        if re_rank:
+            query_dict['rerankingConfig'] = {
+                "rerankerId": 272725718,
+                "mmrConfig": {
+                    "diversityBias": 0.3
+                }
+            }
+
         if summary:
             if response_lang:
                 self.logger.debug(f"Response Language set to [{response_lang}]")
             else:
                 raise TypeError("If you are going to change from the default language (en) you must set one.")
 
-
             # Old: vectara-summary-ext-v1.2.0
             # New: vectara-summary-ext-v1.2.3
             query_dict['summary'] = [{"summarizerPromptName": summarizer,
                                       "responseLang": response_lang,
-                                      "maxSummarizedResults": 5
+                                      "maxSummarizedResults": summary_result_count
                                       }]
             if promptText:
                 query_dict['summary'][0]['promptText'] = promptText
@@ -121,6 +128,6 @@ class QueryService():
 
             result.responseSet[0].summary[0].status = status
             return result.responseSet[0]
-            #raise SummaryError("We did not have sufficient results to generate results.")
+            # raise SummaryError("We did not have sufficient results to generate results.")
         else:
             return result.responseSet[0]
