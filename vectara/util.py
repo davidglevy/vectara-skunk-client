@@ -33,6 +33,7 @@ class RequestUtil:
     def __init__(self, auth_util: BaseAuthUtil):
         self.logger = logging.getLogger(__class__.__name__)
         self.auth_util = auth_util
+        self.requests = []
 
     def request(self, operation: str, payload, to_class: Type[T] = None, method="POST") -> T:
         """
@@ -48,6 +49,8 @@ class RequestUtil:
         headers['Accept'] = 'application/json'
 
         self.logger.debug(f"Headers: {json.dumps(headers)}")
+
+        self.requests.append({'operation': operation, 'payload': payload})
 
         url = f"https://api.vectara.io/v1/{operation}"
         self.logger.info(f"URL for operation {operation} is: {url}")
@@ -168,6 +171,8 @@ class BaseFormatter(ABC):
     def rtl(self, text: str):
         raise Exception("Implement in subclass")
 
+    def code(self, text: str, language=None):
+        raise Exception("Implement in subclass")
 
 class MarkdownFormatter(BaseFormatter):
 
@@ -202,6 +207,14 @@ class MarkdownFormatter(BaseFormatter):
 
     def rtl(self, text):
         return '<div dir="rtl">\n' + text + '</div>'
+
+    def code(self, text: str, language=None):
+        result = "\n```"
+        if language:
+            result += language
+        result += str(text)
+        result += "\n```\n"
+        return result
 
 
 class ResponseSetRenderer:
@@ -255,6 +268,14 @@ def render_markdown(query: str, response_set: ResponseSet, rtl=False, show_searc
     formatter = MarkdownFormatter()
     renderer = ResponseSetRenderer(formatter)
     return renderer.render(query, response_set, rtl, show_search_results, heading_level, expect_summary=expect_summary)
+
+def render_markdown_req(request:dict):
+    formatter = MarkdownFormatter()
+
+    result = formatter.heading(f"Request Operation [{request['operation']}] with payload:", level=3)
+    result += formatter.code(json.dumps(request['payload'], indent=4), "json")
+
+    return result
 
 
 prompt_text = (

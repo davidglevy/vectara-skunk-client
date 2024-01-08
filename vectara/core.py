@@ -12,14 +12,18 @@ import json
 class Client:
 
     def __init__(self, customer_id: str, admin_service: AdminService,
-                 indexer_service: IndexerService, query_service: QueryService):
+                 indexer_service: IndexerService, query_service: QueryService,
+                 request_util: RequestUtil):
         self.logging = logging.getLogger(self.__class__.__name__)
         logging.info("initializing Client")
         self.customer_id = customer_id
         self.admin_service = admin_service
         self.indexer_service = indexer_service
         self.query_service = query_service
+        self.request_util = request_util
 
+    def get_requests(self):
+        return self.request_util.requests
 
 class Factory():
 
@@ -85,4 +89,5 @@ class Factory():
         indexer_service = IndexerService(auth_util, request_util, int(client_config.customer_id))
         query_service = QueryService(request_util, int(client_config.customer_id))
 
-        return Client(client_config.customer_id, admin_service, indexer_service, query_service)
+        return Client(client_config.customer_id, admin_service, indexer_service, query_service,
+                      request_util)

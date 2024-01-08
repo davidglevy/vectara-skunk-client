@@ -1,6 +1,8 @@
 import unittest
+from vectara.util import MarkdownFormatter, render_markdown_req
 from test.base import BaseClientTest
 from test.util import check_metadata
+import json
 
 class BasicQuery(BaseClientTest):
 
@@ -20,6 +22,17 @@ class BasicQuery(BaseClientTest):
         self.assertEqual(resp.document[0].id, 'D19-5819.pdf')
         expected_metadata = {'section': '5', 'offset': '318', 'len': '195'}
         check_metadata(self, expected_metadata, resp.response[0].metadata)
+
+        last_request = self.client.get_requests()[-1]
+        self.logger.info(f"Last request was of type [{last_request['operation']}]")
+
+        formatter = MarkdownFormatter()
+
+        formatted_request = render_markdown_req(last_request)
+        self.logger.info(f"Markdown formatted request:\n{formatted_request}")
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
