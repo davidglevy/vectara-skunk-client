@@ -8,7 +8,8 @@ class ChatHelper:
     def __init__(self, corpus_id: int, qs: QueryService, customer_name:str,
                  chat_persona="Customer Service", name="Fiona",
                  max_word_count:int=300, log_response: bool = True, resp_lang="en",
-                 context_config=None, re_rank=False, summary_result_count=5):
+                 context_config=None, re_rank=False, summary_result_count=5,
+                 page_size=10):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.corpus_id = corpus_id
         self.qs = qs
@@ -22,6 +23,7 @@ class ChatHelper:
         self.context_config = context_config
         self.re_rank = re_rank
         self.summary_result_count = summary_result_count
+        self.page_size = page_size
 
     def run_chat(self, query: str) -> str:
         prompt_text = self.prompt_factory.build()
@@ -31,7 +33,7 @@ class ChatHelper:
 
         response = self.qs.query(query, self.corpus_id, promptText=prompt_text, response_lang=self.resp_lang,
                                  context_config=self.context_config, re_rank=self.re_rank,
-                                 summary_result_count=self.summary_result_count)
+                                 summary_result_count=self.summary_result_count, page_size=self.page_size)
 
         if self.log_response:
             self.logger.info(render_markdown(query, response, show_search_results=False))
