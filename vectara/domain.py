@@ -452,6 +452,16 @@ class ListApiKeysResponse:
     status: Status
 
 @dataclass
+class ListDocumentItem:
+    id: str
+    metadata: Optional[List[Attribute]]
+
+@dataclass
+class ListDocumentsResponse:
+    document: List[ListDocumentItem]
+    nextPageKey: str
+
+@dataclass
 class PagedApiKeyResponse:
     # FIXME Move this into vectara-client-manager
     total_results: int

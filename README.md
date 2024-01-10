@@ -36,6 +36,8 @@ admin = client.admin_service
 indexer = client.indexer_service
 # Query API
 query = client.query_service
+# Document Service
+doc_service = client.document_service
 
 ```
 ## Factory Build Configuration Flow

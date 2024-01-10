@@ -78,15 +78,6 @@ class AdminService():
         response = self.request_util.request("delete-corpus", asdict(request), DeleteCorpusResponse)
         return response.status
 
-    def list_documents(self, corpus_id: int, page: int = 0, page_size: int = 100, metadata_filter: str = None) -> List[
-        dict]:
-
-        payload = {"corpus_id": corpus_id, "page": page, "num_results": page_size}
-        if metadata_filter:
-            payload['metadata_filter'] = metadata_filter
-        response = self.request_util.request("documents", payload, Any, method="POST")
-        return response.documents
-
     def create_api_key(self, corpus_id: Union[int, List], key_type: ApiKeyType, description: str = None):
         # Convert singular int to List of corpus ids.
         if type(corpus_id) is list:

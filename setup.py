@@ -16,7 +16,7 @@ setup(
     description='Vectara Skunk Client',
     long_description=get_long_desc(),
     long_description_content_type='text/markdown',
-    version='0.4.5',
+    version='0.4.6',
     author='David Levy',
     author_email='david.g.levy@gmail.com',
     url='https://github.com/davidglevy/vectara-skunk-client',

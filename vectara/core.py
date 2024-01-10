@@ -2,6 +2,7 @@ import logging
 from vectara.config import JsonConfigLoader, PathConfigLoader, HomeConfigLoader
 from vectara.authn import OAuthUtil, ApiKeyUtil, BaseAuthUtil
 from vectara.admin import AdminService
+from vectara.document import DocumentService
 from vectara.index import IndexerService
 from vectara.query import QueryService
 from vectara.util import RequestUtil
@@ -13,6 +14,7 @@ class Client:
 
     def __init__(self, customer_id: str, admin_service: AdminService,
                  indexer_service: IndexerService, query_service: QueryService,
+                 document_service: DocumentService,
                  request_util: RequestUtil):
         self.logging = logging.getLogger(self.__class__.__name__)
         logging.info("initializing Client")
@@ -20,6 +22,7 @@ class Client:
         self.admin_service = admin_service
         self.indexer_service = indexer_service
         self.query_service = query_service
+        self.document_service = document_service
         self.request_util = request_util
 
     def get_requests(self):
@@ -88,6 +91,7 @@ class Factory():
         admin_service = AdminService(request_util, int(client_config.customer_id))
         indexer_service = IndexerService(auth_util, request_util, int(client_config.customer_id))
         query_service = QueryService(request_util, int(client_config.customer_id))
+        document_service = DocumentService(request_util)
 
-        return Client(client_config.customer_id, admin_service, indexer_service, query_service,
+        return Client(client_config.customer_id, admin_service, indexer_service, query_service, document_service,
                       request_util)
