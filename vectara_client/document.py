@@ -1,6 +1,6 @@
-from vectara.client.domain import *
+from vectara_client.domain import *
 from typing import List, TypeVar
-from vectara.client.util import RequestUtil, convertAttrListToDict
+from vectara_client.util import RequestUtil, convertAttrListToDict
 import logging
 
 T = TypeVar("T")

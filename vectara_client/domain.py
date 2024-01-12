@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 from enum import Enum
-from vectara.client.status import Status
-from vectara.client.enums import ApiKeyStatus, ApiKeyType
+from vectara_client.status import Status
+from vectara_client.enums import ApiKeyStatus, ApiKeyType
 
 from dataclasses import dataclass
 
@@ -479,7 +479,7 @@ class ListDocumentsResponse:
 
 @dataclass
 class PagedApiKeyResponse:
-    # FIXME Move this into vectara-client-manager
+    # FIXME Move this into vectara_client-client-manager
     total_results: int
     total_pages: int
     current_page: int

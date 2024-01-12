@@ -1,10 +1,10 @@
 import json
 from dataclasses import asdict
-from vectara.client.domain import *
+from vectara_client.domain import *
 from dacite import from_dict
 from typing import List, TypeVar, Union
-from vectara.client.status import StatusCode
-from vectara.client.util import _custom_asdict_factory, RequestUtil
+from vectara_client.status import StatusCode
+from vectara_client.util import _custom_asdict_factory, RequestUtil
 import logging
 import re
 
@@ -27,7 +27,7 @@ class QueryService():
 
     def query(self, query_text: str, corpus_id: Union[int, List[int]], start: int = 0, page_size: int = 10,
               summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT',
-              promptText=None, metadata: str = None, summarizer: str = "vectara-summary-ext-v1.3.0",
+              promptText=None, metadata: str = None, summarizer: str = "vectara_client-summary-ext-v1.3.0",
               summary_result_count=5, re_rank=False):
 
         # Convert singular int to List of corpus ids.
@@ -78,8 +78,8 @@ class QueryService():
             else:
                 raise TypeError("If you are going to change from the default language (en) you must set one.")
 
-            # Old: vectara-summary-ext-v1.2.0
-            # New: vectara-summary-ext-v1.2.3
+            # Old: vectara_client-summary-ext-v1.2.0
+            # New: vectara_client-summary-ext-v1.2.3
             query_dict['summary'] = [{"summarizerPromptName": summarizer,
                                       "responseLang": response_lang,
                                       "maxSummarizedResults": summary_result_count

@@ -1,11 +1,11 @@
 import logging
-from vectara.client.config import JsonConfigLoader, PathConfigLoader, HomeConfigLoader
-from vectara.client.authn import OAuthUtil, ApiKeyUtil
-from vectara.client.admin import AdminService
-from vectara.client.document import DocumentService
-from vectara.client.index import IndexerService
-from vectara.client.query import QueryService
-from vectara.client.util import RequestUtil
+from vectara_client.config import JsonConfigLoader, PathConfigLoader, HomeConfigLoader
+from vectara_client.authn import OAuthUtil, ApiKeyUtil
+from vectara_client.admin import AdminService
+from vectara_client.document import DocumentService
+from vectara_client.index import IndexerService
+from vectara_client.query import QueryService
+from vectara_client.util import RequestUtil
 
 
 class Client:

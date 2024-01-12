@@ -1,9 +1,9 @@
 import unittest
-from vectara.cralwer_util import CrawlerUtil, JwtAuthenticator
+from vectara_client.cralwer_util import CrawlerUtil, JwtAuthenticator
 import yaml
 import logging
 
-INDEXER_HOST = "api.vectara.io"
+INDEXER_HOST = "api.vectara_client.io"
 
 logging.basicConfig(
         format=logging.BASIC_FORMAT, level=logging.INFO)

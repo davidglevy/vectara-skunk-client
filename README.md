@@ -12,11 +12,11 @@ to your Retrieval Augmented Generation (RAG) pipeline.
 5. Build awesome GenerativeAI applications.
 
 ```bash
-pip install vectara-skunk-client
+pip install vectara_client-skunk-client
 ```
 
 ```python
-from vectara.client.core import Factory
+from vectara_client.core import Factory
 
 client = Factory().build()
 # Upload our document
@@ -81,7 +81,7 @@ admin:
 You can load other configuration profiles using the property profile on the build command.
 
 ```python
-from vectara.client.core import Factory
+from vectara_client.core import Factory
 
 factory = Factory()
 client = factory.build(profile="admin")
@@ -92,7 +92,7 @@ client = factory.build(profile="admin")
 You can also inject the configuration for the client by putting in a JSON string of the following formats
 
 ```python
-from vectara.client.core import Factory
+from vectara_client.core import Factory
 
 auth_config_json = "{...}"
 client = Factory().build(config=auth_config_json)

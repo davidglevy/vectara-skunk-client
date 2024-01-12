@@ -1,8 +1,8 @@
 import logging
 from typing import List
-from vectara.client.core import Client
-from vectara.client.dao import ManagerDao, CorpusDao
-from vectara.client.admin import AdminService
+from vectara_client.core import Client
+from vectara_client.dao import ManagerDao, CorpusDao
+from vectara_client.admin import AdminService
 
 class VectaraManager():
 

@@ -1,10 +1,10 @@
 from dataclasses import asdict
-from vectara.client.domain import *
-from vectara.client.enums import ApiKeyStatus, ApiKeyType, ApiKeySort, SortDirection
+from vectara_client.domain import *
+from vectara_client.enums import ApiKeyStatus, ApiKeyType, ApiKeySort, SortDirection
 from dacite import from_dict
 from typing import List, TypeVar, Union
-from vectara.client.status import StatusCode
-from vectara.client.util import _custom_asdict_factory, RequestUtil
+from vectara_client.status import StatusCode
+from vectara_client.util import _custom_asdict_factory, RequestUtil
 import logging
 
 T = TypeVar("T")
@@ -126,7 +126,7 @@ class AdminService():
                       # Sort Params
                       sort_field:ApiKeySort=ApiKeySort.START_TS, sort_dir:SortDirection=SortDirection.ASC):
         """
-        FIXME: MOVE Pagination/Sorting into vectara-client-manager.
+        FIXME: MOVE Pagination/Sorting into vectara_client-client-manager.
 
         :param corpus_id:
         :param enabled:

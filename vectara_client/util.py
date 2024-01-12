@@ -1,7 +1,7 @@
 from abc import ABC
 from enum import Enum
-from vectara.client.authn import BaseAuthUtil
-from vectara.client.domain import UploadDocumentResponse, ResponseSet, Attribute
+from vectara_client.authn import BaseAuthUtil
+from vectara_client.domain import UploadDocumentResponse, ResponseSet, Attribute
 from typing import Type, TypeVar, List
 from dacite import from_dict
 from pathlib import Path

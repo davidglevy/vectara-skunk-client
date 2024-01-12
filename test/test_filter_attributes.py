@@ -1,5 +1,5 @@
 import unittest
-from vectara.client.domain import FilterAttribute, FilterAttributeType, FilterAttributeLevel, ResponseSet
+from vectara_client.domain import FilterAttribute, FilterAttributeType, FilterAttributeLevel, ResponseSet
 from test.base import BaseClientTest
 from typing import List
 

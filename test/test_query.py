@@ -1,6 +1,6 @@
 from test.base import BaseClientTest
-from vectara.client.util import render_markdown, SimplePromptFactory, StandardPromptFactory
-from vectara.client.chat import ChatHelper
+from vectara_client.util import render_markdown, SimplePromptFactory, StandardPromptFactory
+from vectara_client.chat import ChatHelper
 from test.util import create_test_corpus
 from pathlib import Path
 

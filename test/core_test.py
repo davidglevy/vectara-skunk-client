@@ -1,6 +1,6 @@
 import unittest
 import logging
-from vectara.client.core import Factory
+from vectara_client.core import Factory
 
 logging.basicConfig(
         format=logging.BASIC_FORMAT, level=logging.INFO)

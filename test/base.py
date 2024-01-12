@@ -1,11 +1,11 @@
 from unittest import TestCase
 import logging
-from vectara.client.core import Factory, Client
-from vectara.client.domain import (FilterAttribute, FilterAttributeType, FilterAttributeLevel, UploadDocumentResponse,
+from vectara_client.core import Factory, Client
+from vectara_client.domain import (FilterAttribute, FilterAttributeType, FilterAttributeLevel, UploadDocumentResponse,
                                    IndexDocumentResponse)
-from vectara.client.query import QueryService
-from vectara.client.admin import AdminService
-from vectara.client.index import IndexerService
+from vectara_client.query import QueryService
+from vectara_client.admin import AdminService
+from vectara_client.index import IndexerService
 
 from typing import Union
 from pathlib import Path

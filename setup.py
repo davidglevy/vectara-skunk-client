@@ -12,19 +12,19 @@ def get_long_desc() -> str:
         return "\n".join(lines)
 
 setup(
-    name='vectara-skunk-client',
+    name='vectara_client-skunk-client',
     description='Vectara Skunk Client',
     long_description=get_long_desc(),
     long_description_content_type='text/markdown',
-    version='0.4.11',
+    version='0.4.12',
     author='David Levy',
     author_email='david.g.levy@gmail.com',
     url='https://github.com/davidglevy/vectara-skunk-client',
     license='GNU AFFERO GENERAL PUBLIC LICENSE v3',
     package_dir={
-        'vectara.client': 'vectara/client'
+        'vectara_client': 'vectara_client'
     },
-    packages=['vectara.client'],
+    packages=['vectara_client'],
     install_requires=['requests', 'dacite>=1.8.1', 'Authlib==1.0.1', 'pyaml==23.9.7', 'tqdm==4.66.1',
                       'requests-toolbelt==1.0.0'],
     python_requires='>=3.4',

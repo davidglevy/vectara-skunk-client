@@ -1,6 +1,6 @@
 from unittest import TestCase
-from vectara.client.util import render_markdown, SimplePromptFactory
-from vectara.client.domain import ResponseSet
+from vectara_client.util import render_markdown, SimplePromptFactory
+from vectara_client.domain import ResponseSet
 from dacite import from_dict
 
 
