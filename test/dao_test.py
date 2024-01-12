@@ -1,5 +1,5 @@
-from unittest import TestCase, SkipTest
-from vectara.dao import CoreDao, ManagerDao
+from unittest import TestCase
+from vectara.client.dao import CoreDao, ManagerDao
 
 class CoreDaoTest(TestCase):
 

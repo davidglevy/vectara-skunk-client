@@ -1,15 +1,11 @@
-import logging
-import requests
-import json
 from dataclasses import asdict
-from vectara.authn import BaseAuthUtil
-from vectara.domain import *
-from vectara.enums import ApiKeyStatus, ApiKeyType, ApiKeySort, SortDirection
+from vectara.client.domain import *
+from vectara.client.enums import ApiKeyStatus, ApiKeyType, ApiKeySort, SortDirection
 from dacite import from_dict
-from typing import Type, Any, List, TypeVar, overload, Union
-from vectara.dao import CorpusDao
-from vectara.status import StatusCode
-from vectara.util import _custom_asdict_factory, RequestUtil
+from typing import List, TypeVar, Union
+from vectara.client.status import StatusCode
+from vectara.client.util import _custom_asdict_factory, RequestUtil
+import logging
 
 T = TypeVar("T")
 

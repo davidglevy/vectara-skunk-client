@@ -1,7 +1,4 @@
-from unittest import TestCase
-from vectara.index import IndexerService
 from test.base import BaseClientTest
-import logging
 import os
 
 

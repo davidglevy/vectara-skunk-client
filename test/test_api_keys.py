@@ -1,8 +1,7 @@
 import unittest
 from test.base import BaseClientTest
-from vectara.enums import ApiKeyType
-from vectara.core import Factory
-from test.util import check_metadata
+from vectara.client.enums import ApiKeyType
+from vectara.client.core import Factory
 import json
 from requests.exceptions import HTTPError
 import time

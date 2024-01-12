@@ -1,9 +1,7 @@
-import logging
-from dataclasses import dataclass, field
 from typing import List, Optional, Union
 from enum import Enum
-from vectara.status import Status
-from vectara.enums import ApiKeyStatus, ApiKeyType
+from vectara.client.status import Status
+from vectara.client.enums import ApiKeyStatus, ApiKeyType
 
 from dataclasses import dataclass
 

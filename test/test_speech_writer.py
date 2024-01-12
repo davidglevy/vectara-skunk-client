@@ -1,10 +1,8 @@
 import unittest
-from vectara.util import MarkdownFormatter, render_markdown_req
 from test.base import BaseClientTest
 from pathlib import Path
-from vectara.util import StandardPromptFactory
-import json
-from vectara.util import render_markdown
+from vectara.client.util import StandardPromptFactory
+
 
 class BasicQuery(BaseClientTest):
 

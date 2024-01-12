@@ -1,8 +1,6 @@
 import unittest
-from vectara.util import MarkdownFormatter, render_markdown_req
 from test.base import BaseClientTest
-from test.util import check_metadata
-import json
+
 
 class BasicQuery(BaseClientTest):
 

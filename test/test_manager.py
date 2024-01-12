@@ -1,12 +1,9 @@
 import unittest
 import logging
-from vectara.core import Factory
-from vectara.manager import VectaraManager
-from vectara.domain import Corpus
-from dacite import from_dict
-from vectara.dao import ManagerDao, CorpusDao
+from vectara.client.core import Factory
+from vectara.client.manager import VectaraManager
+from vectara.client.dao import ManagerDao, CorpusDao
 
-import json
 import os
 
 logging.basicConfig(

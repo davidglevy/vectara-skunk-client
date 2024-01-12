@@ -1,7 +1,6 @@
-import json
 from unittest import TestCase
-from vectara.util import render_markdown, SimplePromptFactory
-from vectara.domain import ResponseSet
+from vectara.client.util import render_markdown, SimplePromptFactory
+from vectara.client.domain import ResponseSet
 from dacite import from_dict
 
 

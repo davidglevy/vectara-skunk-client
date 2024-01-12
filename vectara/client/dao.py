@@ -1,4 +1,4 @@
-from vectara.domain import Corpus
+from vectara.client.domain import Corpus
 from abc import ABC
 import sqlite3
 import logging

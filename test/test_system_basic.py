@@ -1,8 +1,3 @@
-import unittest
-import logging
-from vectara.core import Factory
-from vectara.domain import Corpus
-from dacite import from_dict
 from test.base import BaseClientTest
 
 import os

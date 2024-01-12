@@ -12,9 +12,9 @@ Tasks
 * TODO There's likely a higher abstraction here which will check for doc existing and allow overwrites (CorpusManager?)
 * TODO Investigate whether I need the lower level API too
 """
-from vectara.authn import BaseAuthUtil
-from vectara.domain import UploadDocumentResponse, CoreDocument, IndexDocumentRequest, IndexDocumentResponse
-from vectara.util import RequestUtil
+from vectara.client.authn import BaseAuthUtil
+from vectara.client.domain import UploadDocumentResponse, CoreDocument, IndexDocumentRequest, IndexDocumentResponse
+from vectara.client.util import RequestUtil
 from typing import Union
 from pathlib import Path
 from dacite import from_dict

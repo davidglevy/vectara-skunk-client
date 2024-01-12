@@ -1,11 +1,10 @@
 import unittest
 import logging
-from vectara.core import Factory
-from vectara.domain import Corpus
+from vectara.client.core import Factory
+from vectara.client.domain import Corpus
 from test.util import loadTestConfigAsJson
 from dacite import from_dict
 
-import json
 import os
 
 logging.basicConfig(

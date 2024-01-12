@@ -1,7 +1,6 @@
 import unittest
-from vectara.domain import FilterAttribute, FilterAttributeType, FilterAttributeLevel, ResponseSet
+from vectara.client.domain import FilterAttribute, FilterAttributeType, FilterAttributeLevel, ResponseSet
 from test.base import BaseClientTest
-from test.util import check_metadata
 from typing import List
 
 

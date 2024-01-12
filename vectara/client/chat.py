@@ -1,5 +1,5 @@
-from vectara.util import ChatPromptFactory, render_markdown
-from vectara.query import QueryService
+from vectara.client.util import ChatPromptFactory, render_markdown
+from vectara.client.query import QueryService
 import logging
 
 

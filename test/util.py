@@ -1,5 +1,5 @@
-from vectara.core import Factory
-from vectara.domain import Attribute
+from vectara.client.core import Factory
+from vectara.client.domain import Attribute
 from typing import List
 from unittest import TestCase
 import logging

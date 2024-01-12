@@ -1,6 +1,6 @@
 import unittest
 import logging
-from vectara.config import ClientConfig, ApiKeyAuthConfig, loadConfig
+from vectara.client.config import ApiKeyAuthConfig, loadConfig
 
 logging.basicConfig(
         format=logging.BASIC_FORMAT, level=logging.INFO)

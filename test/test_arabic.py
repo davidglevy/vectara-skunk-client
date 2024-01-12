@@ -1,6 +1,5 @@
-import unittest
 from test.base import BaseClientTest
-from vectara.util import render_markdown, _custom_asdict_factory
+from vectara.client.util import render_markdown, _custom_asdict_factory
 from dataclasses import asdict
 import json
 

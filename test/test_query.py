@@ -1,17 +1,9 @@
-import unittest
-import logging
-from vectara.core import Factory
-import json
-import os
 from test.base import BaseClientTest
-from vectara.query import QueryService
-from vectara.util import render_markdown, SimplePromptFactory, StandardPromptFactory, ChatPromptFactory
-from vectara.chat import ChatHelper
+from vectara.client.util import render_markdown, SimplePromptFactory, StandardPromptFactory
+from vectara.client.chat import ChatHelper
 from test.util import create_test_corpus
 from pathlib import Path
-from vectara.core import Factory
 
-import os
 
 class QueryIntegrationTest(BaseClientTest):
 

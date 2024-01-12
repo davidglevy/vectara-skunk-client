@@ -1,14 +1,13 @@
 from unittest import TestCase
 import logging
-from vectara.core import Factory, Client
-from vectara.domain import (Corpus, FilterAttribute, FilterAttributeType, FilterAttributeLevel, UploadDocumentResponse,
-                            IndexDocumentResponse)
-from vectara.query import QueryService
-from vectara.admin import AdminService
-from vectara.index import IndexerService
+from vectara.client.core import Factory, Client
+from vectara.client.domain import (FilterAttribute, FilterAttributeType, FilterAttributeLevel, UploadDocumentResponse,
+                                   IndexDocumentResponse)
+from vectara.client.query import QueryService
+from vectara.client.admin import AdminService
+from vectara.client.index import IndexerService
 
 from typing import Union
-from dacite import from_dict
 from pathlib import Path
 
 import os

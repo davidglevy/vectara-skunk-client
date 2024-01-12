@@ -1,8 +1,7 @@
+from vectara.client.domain import *
+from typing import List, TypeVar
+from vectara.client.util import RequestUtil, convertAttrListToDict
 import logging
-from vectara.domain import *
-from typing import Type, Any, List, TypeVar, overload, Union
-from vectara.status import StatusCode
-from vectara.util import RequestUtil, convertAttrListToDict
 
 T = TypeVar("T")
 
