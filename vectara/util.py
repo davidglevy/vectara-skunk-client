@@ -1,7 +1,7 @@
 from abc import ABC
 from enum import Enum
 from vectara.authn import BaseAuthUtil
-from vectara.domain import UploadDocumentResponse, ResponseSet, Response, ResponseDocument, SummaryResponse
+from vectara.domain import UploadDocumentResponse, ResponseSet, Attribute
 from typing import Type, TypeVar, List
 from dacite import from_dict
 from pathlib import Path
@@ -15,6 +15,12 @@ import warnings
 import os
 
 T = TypeVar("T")
+
+def convertAttrListToDict(input:List[Attribute]):
+    result = {}
+    for attr in input:
+        result[attr.name] = attr.value
+    return result
 
 
 def _custom_asdict_factory(data):

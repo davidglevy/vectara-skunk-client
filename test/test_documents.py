@@ -8,29 +8,37 @@ class BasicQuery(BaseClientTest):
 
     def setUp(self):
         super().setUp()
-        self.upload_test_doc("./resources/research/D19-5819.pdf")
 
-    def test_run_basic_query(self):
+    def test_documents_info(self):
         """
-        Basic test which runs a query and confirms that we receive back the correct document.
+        Test Document List Test.
         :return:
         """
-        resp = self.query_service.query("Are existing QA benchmarks sufficient for answering user "
-                                        "questions at scale?", self.corpus_id, summary=False)
 
-        self.assertTrue(len(resp.document) == 1)
-        self.assertEqual(resp.document[0].id, 'D19-5819.pdf')
-        expected_metadata = {'section': '5', 'offset': '318', 'len': '195'}
-        check_metadata(self, expected_metadata, resp.response[0].metadata)
+        dict1 = {"owner": "david"}
+        dict2 = {"owner": "justin"}
 
-        last_request = self.client.get_requests()[-1]
-        self.logger.info(f"Last request was of type [{last_request['operation']}]")
+        #resp1 = self.index_test_doc("./resources/filter_attributes/document_1.json", force=True)
+        #resp2 = self.index_test_doc("./resources/filter_attributes/document_2.json", force=True)
+        #resp3 = self.index_test_doc("./resources/filter_attributes/document_3.json", force=True)
 
-        formatter = MarkdownFormatter()
+        doc_service = self.client.document_service
 
-        formatted_request = render_markdown_req(last_request)
-        self.logger.info(f"Markdown formatted request:\n{formatted_request}")
+        doc_list = doc_service.list_documents(self.corpus_id)
+        for doc in doc_list:
+            self.logger.info(f"We found [{doc}]")
 
+        # TODO Assert metadata returned.
+
+        doc_list = doc_service.list_documents(self.corpus_id, page_size=2)
+        self.assertEqual(3, len(doc_list))
+
+
+        # Test Metadata filter
+        doc_list = doc_service.list_documents(self.corpus_id, metadata_filter="doc.id = 'doc-id-1'")
+        self.assertEqual(1, len(doc_list))
+        self.assertEqual("doc-id-1", doc_list[0].id)
+        self.assertEqual("e01c8b476dc7b4ef6457777ccd09bd75f43e390c", doc_list[0].metadata['sha1_hash'])
 
 
 

@@ -70,6 +70,7 @@ class StatusCode(Enum):
     QRY__PARTIAL_RERANK = 1585
     QRY__RERANK_FAILURE = 1590
     QRY__TOO_MANY_RESULT_ROWS = 1595
+    QRY__SMRY__NO_QUERY_RESULTS = 1600 # TODO Validate this number!!
 
     # Connection specs - ---------------------------------------------------------
     CX_SPECS__INVALID_JSON = 2000

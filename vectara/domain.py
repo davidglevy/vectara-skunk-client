@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Union
 from enum import Enum
 from vectara.status import Status
 from vectara.enums import ApiKeyStatus, ApiKeyType
@@ -165,10 +165,12 @@ class DeleteCorpusRequest:
 class DeleteCorpusResponse:
     status: Status
 
+
 @dataclass
 class CalculateCorpusSizeResponse:
     size: CorpusSize
     status: Status
+
 
 @dataclass
 class StorageQuota:
@@ -328,6 +330,7 @@ class Response:
     resultOffset: int
     resultLength: int
 
+
 @dataclass
 class ResponseDocument:
     id: str
@@ -342,12 +345,14 @@ class SummaryResponse:
     status: List[Status]
     # Do we need to serialize "futureId"?
 
+
 @dataclass
 class ResponseSet:
     response: List[Response]
     status: List[Status]
     document: Optional[List[ResponseDocument]]
     summary: Optional[List[SummaryResponse]]
+
 
 @dataclass
 class PerformanceMetrics:
@@ -363,12 +368,14 @@ class BatchQueryResponse:
     status: List[Status]
     metrics: Optional[PerformanceMetrics]
 
+
 @dataclass
 class CoreDocumentPart:
     text: Optional[str]
     context: Optional[str]
     metadata_json: Optional[str]
     custom_dims: Optional[List[CustomDimension]]
+
 
 @dataclass
 class CoreDocument:
@@ -379,8 +386,9 @@ class CoreDocument:
     title: str
     metadata_json: Optional[str]
     section: Optional[List[CoreDocumentPart]]
-    #default_part_context: Optional[str]
+    # default_part_context: Optional[str]
     custom_dims: Optional[List[CustomDimension]]
+
 
 @dataclass
 class IndexDocumentRequest:
@@ -390,6 +398,7 @@ class IndexDocumentRequest:
     customer_id: int
     corpus_id: int
     document: CoreDocument
+
 
 @dataclass
 class IndexDocumentResponse:
@@ -433,6 +442,7 @@ class EnableApiKeyRequestInner:
 class EnableApiKeyRequest:
     keyEnablement: List[EnableApiKeyRequestInner]
 
+
 @dataclass
 class CorpusShort:
     id: int
@@ -451,15 +461,23 @@ class ListApiKeysResponse:
     pageKey: Optional[str]
     status: Status
 
+
 @dataclass
 class ListDocumentItem:
     id: str
     metadata: Optional[List[Attribute]]
 
 @dataclass
+class DocumentDTO:
+    id: str
+    metadata: dict[str, Union[str, int, float, bool]]
+
+
+@dataclass
 class ListDocumentsResponse:
     document: List[ListDocumentItem]
     nextPageKey: str
+
 
 @dataclass
 class PagedApiKeyResponse:

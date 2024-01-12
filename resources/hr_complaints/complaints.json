@@ -1,0 +1,19 @@
+{
+  "document_id": "HR Complaint Process",
+  "title": "HR Complaint Process",
+  "metadata_json": "{ \"version\": 1.0,\n\"current\": true,\n\"type\": \"process\"}",
+  "section": [
+    {
+      "title": "Scope",
+      "text": "This document covers the Human Resources Complaints Process"
+    },
+    {
+      "title": "Pre-requisites",
+      "text": "The organisation prefers employees to resolve complaints themselves. If the employee they want to complain about can be handled by them, they should first try:\n1.\tPushing them into a Lava Lake\n2.\tFeeding them to the Lazer Sharks\n3.\tLocking them in one of our many underground storage facilities\nIf none of these approaches work, please use this process.\n"
+    },
+    {
+      "title": "Scope",
+      "text": "In order to register a complaint, we need the following information:\n1.\tFor each incident:\na.\tThe Date it occurred\nb.\tWho was present\nc.\tA description of the event\nd.\tA reference to the rule which violated the code of conduct\n2.\tSubmit the email to hr-complaints@shmesla.com with the title “incident”\n3.\tOnce this has been done, our team will follow up with you in a few years.\n"
+    }
+  ]
+}
