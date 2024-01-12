@@ -33,7 +33,8 @@ class ChatHelper:
 
         response = self.qs.query(query, self.corpus_id, promptText=prompt_text, response_lang=self.resp_lang,
                                  context_config=self.context_config, re_rank=self.re_rank,
-                                 summary_result_count=self.summary_result_count, page_size=self.page_size)
+                                 summary_result_count=self.summary_result_count, page_size=self.page_size,
+                                 summarizer="vectara-summary-ext-v1.3.0")
 
         if self.log_response:
             self.logger.info(render_markdown(query, response, show_search_results=False))

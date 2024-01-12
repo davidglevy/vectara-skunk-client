@@ -79,7 +79,7 @@ class QueryService():
                 raise TypeError("If you are going to change from the default language (en) you must set one.")
 
             # Old: vectara-summary-ext-v1.2.0
-            # New: vectara-summary-ext-v1.2.3
+            # New: vectara-summary-ext-v1.3.0
             query_dict['summary'] = [{"summarizerPromptName": summarizer,
                                       "responseLang": response_lang,
                                       "maxSummarizedResults": summary_result_count
