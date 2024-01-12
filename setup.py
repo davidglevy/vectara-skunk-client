@@ -12,11 +12,11 @@ def get_long_desc() -> str:
         return "\n".join(lines)
 
 setup(
-    name='vectara_client-skunk-client',
+    name='vectara-skunk-client',
     description='Vectara Skunk Client',
     long_description=get_long_desc(),
     long_description_content_type='text/markdown',
-    version='0.4.12',
+    version='0.4.13',
     author='David Levy',
     author_email='david.g.levy@gmail.com',
     url='https://github.com/davidglevy/vectara-skunk-client',

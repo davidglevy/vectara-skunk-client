@@ -1,5 +1,5 @@
 import unittest
-from vectara_client.util import MarkdownFormatter, render_markdown_req
+from vectara_client.util import MarkdownFormatter, render_markdown
 from test.base import BaseClientTest
 from test.util import check_metadata
 
@@ -31,8 +31,15 @@ class BasicQuery(BaseClientTest):
         formatted_request = render_markdown_req(last_request)
         self.logger.info(f"Markdown formatted request:\n{formatted_request}")
 
-
-
+    def test_basic_summary(self):
+            """
+            Basic test which runs a query and confirms that we can generate a summary.
+            :return:
+            """
+            query = "Are existing QA benchmarks sufficient for answering user questions at scale?"
+            resp = self.query_service.query(query, self.corpus_id, summary=True)
+            formatted_request = render_markdown(query, resp)
+            self.logger.info(f"Markdown formatted request:\n{formatted_request}")
 
 if __name__ == '__main__':
     unittest.main()
