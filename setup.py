@@ -16,15 +16,15 @@ setup(
     description='Vectara Skunk Client',
     long_description=get_long_desc(),
     long_description_content_type='text/markdown',
-    version='0.4.10',
+    version='0.4.11',
     author='David Levy',
     author_email='david.g.levy@gmail.com',
     url='https://github.com/davidglevy/vectara-skunk-client',
     license='GNU AFFERO GENERAL PUBLIC LICENSE v3',
     package_dir={
-        'vectara': 'vectara'
+        'vectara.client': 'vectara/client'
     },
-    packages=['vectara'],
+    packages=['vectara.client'],
     install_requires=['requests', 'dacite>=1.8.1', 'Authlib==1.0.1', 'pyaml==23.9.7', 'tqdm==4.66.1',
                       'requests-toolbelt==1.0.0'],
     python_requires='>=3.4',
