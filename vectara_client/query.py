@@ -28,7 +28,7 @@ class QueryService():
     def query(self, query_text: str, corpus_id: Union[int, List[int]], start: int = 0, page_size: int = 10,
               summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT',
               promptText=None, metadata: str = None, summarizer: str = "vectara-summary-ext-v1.2.0",
-              summary_result_count=5, re_rank=False):
+              summary_result_count=5, re_rank=False, custom_dimensions:List[dict]=None, _lambda=0.025):
 
         # Convert singular int to List of corpus ids.
         if type(corpus_id) is list:
@@ -54,6 +54,9 @@ class QueryService():
                           }
             if metadata:
                 corpus_key['metadataFilter'] = metadata
+
+            if custom_dimensions:
+                corpus_key['dim'] = custom_dimensions
 
             corpus_keys.append(corpus_key)
 
@@ -90,6 +93,8 @@ class QueryService():
             # Only put this in if we're not summarising.
             query_dict['start']: start
 
+
+
         batch_query_dict = {'query': [query_dict]}
 
         self.logger.debug(f"Query is:\n{json.dumps(batch_query_dict, indent=4)}\n")
@@ -102,7 +107,7 @@ class QueryService():
 
         # Since we can't put in "lambda" to a dataclass field due to Python using it as a reserved word,
         # we inject it now.
-        final_query_dict['query'][0]['corpusKey'][0]['lexicalInterpolationConfig'] = {"lambda": 0.025}
+        final_query_dict['query'][0]['corpusKey'][0]['lexicalInterpolationConfig'] = {"lambda": _lambda}
 
         result = self.request_util.request("query", final_query_dict, BatchQueryResponse)
 

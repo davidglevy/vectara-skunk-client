@@ -101,7 +101,7 @@ class RequestUtil:
             tracker_total_size = path.stat().st_size
             tracker_file_name = path.name
 
-            with warnings.catch_warnings(action="ignore"):
+            with warnings.catch_warnings():
                 """
                 Need to ignore tqdm std.py:580: DeprecationWarning: datetime.datetime.utcfromtimestamp()
                 

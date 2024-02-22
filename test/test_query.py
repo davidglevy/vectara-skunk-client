@@ -91,14 +91,27 @@ class QueryIntegrationTest(BaseClientTest):
         :return:
         """
         qs = self.client.query_service
-        query = "At Vectara, Can I bring any birds to the Vectara Office?"
+        query = "Whats happening?"
         system_prompt = 'You are a human resources manager who takes the search results and summarizes them as a coherent response. Only use information provided in this chat. Respond in the language denoted by ISO 639 code \\"$vectaraLangCode\\".'
         user_prompt = 'Generate a detailed answer (that is no more than 300 words) for the query \\"$esc.java(${vectaraQuery})\\" solely based on the search results in this chat. You must only use information from the provided results. Cite search results using \\"[number]\\" notation. Only cite the most relevant results that answer the question accurately.'
 
         prompt_factory = StandardPromptFactory(system_prompt=system_prompt, user_prompt=user_prompt)
         prompt_text = prompt_factory.build()
 
-        response = qs.query(query, 126, promptText=prompt_text)
+        response = qs.query(query, 326, promptText=prompt_text)
+
+        self.logger.info(render_markdown(query, response))
+
+    def test_twitter_events(self):
+        qs = self.client.query_service
+        query = "Saudi Arabia"
+        system_prompt = 'You are a public relations manager looking at events from Twitter who takes the search results and summarizes them as a coherent response. Only use information provided in this chat. Respond in the language denoted by ISO 639 code \\"$vectaraLangCode\\".'
+        user_prompt = 'Please look through the previous answers and summarize, in less than 300 words, what is happening in relation to the topic \\"$esc.java(${{vectaraQuery}})\\" based only on the interactions in this chat'
+
+        prompt_factory = StandardPromptFactory(system_prompt=system_prompt, user_prompt=user_prompt)
+        prompt_text = prompt_factory.build()
+
+        response = qs.query(query, 326, promptText=prompt_text)
 
         self.logger.info(render_markdown(query, response))
 
