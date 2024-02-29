@@ -28,7 +28,8 @@ class QueryService():
     def query(self, query_text: str, corpus_id: Union[int, List[int]], start: int = 0, page_size: int = 10,
               summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT',
               promptText=None, metadata: str = None, summarizer: str = "vectara-summary-ext-v1.2.0",
-              summary_result_count=5, re_rank=False, custom_dimensions:List[dict]=None, _lambda=0.025):
+              summary_result_count=5, re_rank=False, custom_dimensions:List[dict]=None, _lambda=0.025,
+              temperature=None):
 
         # Convert singular int to List of corpus ids.
         if type(corpus_id) is list:
@@ -89,6 +90,9 @@ class QueryService():
                                       }]
             if promptText:
                 query_dict['summary'][0]['promptText'] = promptText
+
+            if temperature:
+                query_dict['summary'][0]['model_params'] = {'temperature': temperature}
         else:
             # Only put this in if we're not summarising.
             query_dict['start']: start

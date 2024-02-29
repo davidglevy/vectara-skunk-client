@@ -71,13 +71,16 @@ class IndexerService:
 
 
     def upload(self, corpus_id: int, path: Union[str, Path] = None, input_contents: bytes = None, input_file_name: str = None,
-               return_extracted: bool = None, metadata: dict = None) -> UploadDocumentResponse:
+               return_extracted: bool = None, metadata: dict = None, ocr = False) -> UploadDocumentResponse:
         headers = {'c': str(self.customer_id), 'o': str(corpus_id)}
         self.logger.info(f"Headers: {json.dumps(headers)}")
 
         params = {'c': str(self.customer_id), 'o': str(corpus_id)}
         if return_extracted:
             params['d'] = str(True)
+
+        if ocr:
+            params['o'] = "true"
 
         if metadata:
             params['doc_metadata'] = json.dumps(metadata)

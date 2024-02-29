@@ -419,6 +419,7 @@ class ChatPromptFactory(BasePromptFactory):
 
     def __init__(self, chat_persona="Customer Support", name="Gary", max_word_count=300):
         super().__init__()
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.chat_persona = chat_persona
         self.name = name
         self.messages = []
@@ -448,12 +449,11 @@ class ChatPromptFactory(BasePromptFactory):
         # Append the system indicator.
         lines.append(f'[ {{"role": "system", "content": "{system_prompt}"}}, \n')
 
-        # Append the pre-requisite 'for-loop' for RAG.
-        lines.append('#foreach ($qResult in $vectaraQueryResults) \n')
-
         # Insert prior context user/assistant messages.
         for message in self.messages:
             lines.append(f'    {json.dumps(message)}, \n')
+        # Append the pre-requisite 'for-loop' for RAG.
+        lines.append('#foreach ($qResult in $vectaraQueryResults) \n')
 
         # Insert the Retrieval results.
         lines.append('   #if ($foreach.first) \n')
@@ -470,7 +470,9 @@ class ChatPromptFactory(BasePromptFactory):
         # Append the Final user phrasing.
         lines.append(f'{{"role": "user", "content": "{user_prompt}" }} ]')
 
-        return "".join(lines)
+        result = "".join(lines)
+        self.logger.info("Chat prompt is:\n" + result)
+        return result
 
 
 
