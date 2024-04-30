@@ -65,9 +65,7 @@ class RequestUtil:
 
         payload_json = json.dumps(payload)
 
-        print("Making request")
         response = requests.request(method, url, headers=headers, data=payload_json)
-        print(f"Response was: {response.status_code}")
 
         if response.status_code == 200:
             if to_class:

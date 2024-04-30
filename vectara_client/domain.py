@@ -125,7 +125,7 @@ class ApiKey:
 class CorpusInfo:
     corpus: Corpus
     corpusStatus: Status  # Different from proto: corpus_status
-    size: CorpusSize
+    size: Optional[CorpusSize]
     sizeStatus: Status  # Different from proto: size_status
     recall: Optional[CorpusRecall]
     recallStatus: Optional[Status]

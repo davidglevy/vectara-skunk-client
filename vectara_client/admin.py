@@ -214,3 +214,75 @@ class AdminService():
         return filtered_api_keys
 
 
+class CorpusBuilder:
+
+    corpus: Corpus
+
+    def __init__(self, name: str):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.corpus = from_dict(Corpus, {
+            'name': name,
+            'customDimensions': [],
+            'filterAttributes': []
+        })
+
+    def name(self, name: str):
+        self.corpus.name = name
+        return self
+
+    def description(self, description: str):
+        self.corpus.description = description
+        return self
+
+    def add_attribute(self, name: str, description: str, indexed: bool = True, type: str = "text",
+                      document: bool = True):
+        """
+        Adds a filter attribute to the given corpus.
+
+        :param name: The name of this corpus.
+        :param description: Description for this filter attribute.
+        :param indexed: Whether this attribute is indexed (defaults to True)
+        :param type: the type is taken from the FilterAttributeType and defaults to "text". This is matched to
+        FilterAttributeType.FILTER_ATTRIBUTE_TYPE__TEXT
+        :param document: Whether this is at the "document" or the "document_part"
+        :return: ourselves
+        """
+        filter_attribute_type = None
+        for filter_enum in FilterAttributeType:
+
+            end_part = filter_enum.name.split("__")[1]
+            if end_part == type.upper():
+                filter_attribute_type = filter_enum
+                break
+        if not filter_attribute_type:
+
+            raise Exception(f"Unknown FilterAttributeType [{type}]")
+
+        level = None
+        if document:
+            level = FilterAttributeLevel.FILTER_ATTRIBUTE_LEVEL__DOCUMENT
+        else:
+            level = FilterAttributeLevel.FILTER_ATTRIBUTE_LEVEL__DOCUMENT_PART
+
+        attribute_dict = {
+            "name": name,
+            "description": description,
+            "indexed": indexed,
+            "type": filter_attribute_type,
+            "level": level
+        }
+        attribute = from_dict(FilterAttribute, attribute_dict)
+
+        self.corpus.filterAttributes.append(attribute)
+        return self
+
+    def add_custom_dimension(self, name: str, description: str):
+        # TODO Implement
+        return self
+
+    def build(self):
+        return self.corpus
+
+
+
+
