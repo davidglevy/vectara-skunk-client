@@ -74,7 +74,8 @@ class Corpus:
 @dataclass
 class ListCorpusResponse:
     corpus: List[Corpus]
-
+    pageKey: str
+    status: Optional[Status]
 
 @dataclass
 class ReadCorpusRequest:
@@ -287,6 +288,23 @@ class RerankingConfig:
     rerankerId: int
     mmrConfig: Optional[MMRConfig]
 
+@dataclass
+class ModelParams:
+    maxTokens: Optional[int]
+    temperature: Optional[float]
+
+    # provides even more granular control to help ensure that the summarization decreases the likelihood of repeating words. The values range from 0.0 to 1.0
+    frequencyPenalty: Optional[float]
+
+    # provides more control over whether you want the summary to include new topics. The values also range from 0.0 to 1.0.
+    presencePenalty: Optional[float]
+
+
+@dataclass
+class ChatRequest:
+    store: Optional[bool]
+    conversationId: Optional[str]
+
 
 @dataclass
 class Summarizer:
@@ -294,11 +312,15 @@ class Summarizer:
     promptText: Optional[str]
     responseLang: str
     maxSummarizedResults: int
+    debug: Optional[bool]
+    chat: Optional[ChatRequest]
+    modelParams: Optional[ModelParams]
 
 
 @dataclass
 class QueryBody:
     query: str
+    queryContext: str
     start: Optional[int]
     numResults: Optional[int]
     contextConfig: Optional[QueryContextConfig]
@@ -334,6 +356,12 @@ class ResponseDocument:
     id: str
     metadata: List[Attribute]
 
+@dataclass
+class ChatResponse:
+    conversationId: str
+    turnId: Optional[str]
+    rephrasedQuery: Optional[str]
+    status: Optional[Status]
 
 @dataclass
 class SummaryResponse:
@@ -341,6 +369,7 @@ class SummaryResponse:
     lang: str
     prompt: str
     status: List[Status]
+    chat: Optional[ChatResponse]
     # Do we need to serialize "futureId"?
 
 

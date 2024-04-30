@@ -60,11 +60,14 @@ class RequestUtil:
         url = f"https://api.vectara.io/v1/{operation}"
         self.logger.info(f"URL for operation {operation} is: {url}")
         if self.logger.isEnabledFor(logging.DEBUG):
+
             self.logger.debug(f"Payload is: {json.dumps(payload, indent=4)}")
 
         payload_json = json.dumps(payload)
 
+        print("Making request")
         response = requests.request(method, url, headers=headers, data=payload_json)
+        print(f"Response was: {response.status_code}")
 
         if response.status_code == 200:
             if to_class:
@@ -74,6 +77,7 @@ class RequestUtil:
             else:
                 return
         else:
+            print(f"Received non 200 response: {response.text}")
             self.logger.error(f"Received non 200 response {response.status_code}, throwing exception")
             response.raise_for_status()
 
@@ -417,13 +421,14 @@ class ChatPromptFactory(BasePromptFactory):
     SYSTEM_PROMPT_TEMPLATE = 'You are a {chat_persona} talking with a customer, respond to small talk in a nice way. You must not say you are an AI model. Provide a short answer from the search results, though you can go into more detail if requested from the user. Do not iterate over each question, just provide a short answer based on prior assistant answers in this chat. You may allow additional information you know in the results if nothing relevant is found. Respond in the language denoted by ISO 639 code \\"$vectaraLangCode\\".'
     USER_PROMPT_TEMPLATE = 'Generate a chat response which is part of a back-and-forth, that is no more than {max_word_count} words, for the query \\"$esc.java(${{vectaraQuery}})\\" preferably based on the interactions in this chat. Please ask for more information to help clarify if needed. If the response answers the question, please finish with a closing phrase that uses \\"does that answer your question\\" to confirm resolution.'
 
-    def __init__(self, chat_persona="Customer Support", name="Gary", max_word_count=300):
+    def __init__(self, chat_persona="Customer Support", name="Gary", max_word_count=300, prompt_metadata={}):
         super().__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
         self.chat_persona = chat_persona
         self.name = name
         self.messages = []
         self.max_word_count = max_word_count
+        self.prompt_metadata = prompt_metadata
 
     def add_user_message(self, user_message):
         self.messages.append({"role": "user", "content": user_message})
@@ -454,6 +459,13 @@ class ChatPromptFactory(BasePromptFactory):
             lines.append(f'    {json.dumps(message)}, \n')
         # Append the pre-requisite 'for-loop' for RAG.
         lines.append('#foreach ($qResult in $vectaraQueryResults) \n')
+
+        metadata = ""
+        if (self.prompt_metadata):
+            bits = []
+            for key in self.prompt_metadata.keys():
+                value = self.prompt_metadata[key]
+                bits.append(f"{key}: ")
 
         # Insert the Retrieval results.
         lines.append('   #if ($foreach.first) \n')

@@ -16,9 +16,9 @@ class BasicQuery(BaseClientTest):
         dict1 = {"owner": "david"}
         dict2 = {"owner": "justin"}
 
-        #resp1 = self.index_test_doc("./resources/filter_attributes/document_1.json", force=True)
-        #resp2 = self.index_test_doc("./resources/filter_attributes/document_2.json", force=True)
-        #resp3 = self.index_test_doc("./resources/filter_attributes/document_3.json", force=True)
+        resp1 = self.index_test_doc("./resources/filter_attributes/document_1.json", force=True)
+        resp2 = self.index_test_doc("./resources/filter_attributes/document_2.json", force=True)
+        resp3 = self.index_test_doc("./resources/filter_attributes/document_3.json", force=True)
 
         doc_service = self.client.document_service
 

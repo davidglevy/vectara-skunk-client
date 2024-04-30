@@ -80,7 +80,7 @@ class IndexerService:
             params['d'] = str(True)
 
         if ocr:
-            params['o'] = "true"
+            params['ocr'] = "true"
 
         if metadata:
             params['doc_metadata'] = json.dumps(metadata)

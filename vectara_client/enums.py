@@ -26,4 +26,12 @@ class SortDirection(Enum):
     ASC = 0,
     DESC = 1
 
+class UsageMetric(Enum):
+    METRICTYPE__NONE = 0,
+    METRICTYPE__INDEXING = 1,
+    METRICTYPE__SERVING = 2
+
+
+
+
 

@@ -29,7 +29,8 @@ class QueryService():
               summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT',
               promptText=None, metadata: str = None, summarizer: str = "vectara-summary-ext-v1.2.0",
               summary_result_count=5, re_rank=False, custom_dimensions:List[dict]=None, _lambda=0.025,
-              temperature=None):
+              temperature=None, debug: bool = None, chat=False, conversation_id:str=None,
+              query_context: str=""):
 
         # Convert singular int to List of corpus ids.
         if type(corpus_id) is list:
@@ -63,6 +64,7 @@ class QueryService():
 
         query_dict = {
             'query': query_text,
+            'queryContext': query_context,
             'numResults': page_size,
             'contextConfig': context_config,
             'corpusKey': corpus_keys
@@ -92,7 +94,18 @@ class QueryService():
                 query_dict['summary'][0]['promptText'] = promptText
 
             if temperature:
-                query_dict['summary'][0]['model_params'] = {'temperature': temperature}
+                query_dict['summary'][0]['modelParams'] = {'temperature': temperature}
+
+            if debug:
+                query_dict['summary'][0]['debug'] = debug
+
+            if chat:
+                query_dict['summary'][0]['chat'] = {
+                    'store': True
+                }
+                if conversation_id:
+                    query_dict['summary'][0]['chat']['conversationId'] = conversation_id
+
         else:
             # Only put this in if we're not summarising.
             query_dict['start']: start

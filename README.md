@@ -12,7 +12,7 @@ to your Retrieval Augmented Generation (RAG) pipeline.
 5. Build awesome GenerativeAI applications.
 
 ```bash
-pip install vectara_client-skunk-client
+pip install vectara-skunk-client
 ```
 
 ```python
@@ -54,8 +54,8 @@ when `Factory().build(...)` is invoked.:
 
 ### Home Location
 The factory by default will automatically seek configuration in the following locations:
-* On Linux based systems from within $HOME/.vec/auth.yaml
-* On Windows based systems from within %USERHOME%\.vec\auth.yaml
+* On Linux based systems from within $HOME/.vec_auth.yaml
+* On Windows based systems from within %USERHOME%\.vec_auth.yaml
 
 ### Configuration Format
 The configuration format should like below. You can define multiple configuration blocks. If not specified,

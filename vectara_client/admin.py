@@ -5,6 +5,7 @@ from dacite import from_dict
 from typing import List, TypeVar, Union
 from vectara_client.status import StatusCode
 from vectara_client.util import _custom_asdict_factory, RequestUtil
+from datetime import datetime, timezone
 import logging
 
 T = TypeVar("T")
@@ -33,6 +34,36 @@ class AdminService():
         payload = {'customer_id': self.customer_id, 'corpus_id': corpus_id}
         resp = self.request_util.request("compute-corpus-size", payload, CalculateCorpusSizeResponse)
         return resp
+
+    def get_usage_metrics_range(self, corpus_id: int, from_ts: int = None,to_ts: int = None,
+                                bucket: int = None):
+        """
+        Adaption on top for GetUsageMetrics (/v1/get-usage-metrics) with provides a facade to
+        retrieve an arbitrary range, group usage by the
+        specified bucket.
+
+        :param corpus_id: the corpus to query
+        :param from_ts: the UNIX epoch start date for the range (inclusive). If None, it will be for 1 hour ago, on the
+            minute.
+        :param to_ts: the UNIX epoch end date for the range (exclusive). If None, it will be set for 1 hour after the
+            from_ts
+        :param bucket: how we will group usage, minimum and default here is 60s
+        :return: a list of usage statistics, with the epoch and count with wrapping for the parameters used/inferred
+        """
+
+        now_ts = datetime.now()
+
+        if from_ts:
+            # Defensive Checks that this isn't after now.
+            self.logger.debug("")
+
+        else:
+            # Set default
+            temp_ts = datetime.now()
+            from_ts = temp_ts.replace(tzinfo=timezone.utc)
+
+
+
 
     def read_corpus(self, corpus_id: int) -> CorpusInfo:
         request = ReadCorpusRequest([corpus_id], True, True, True, True, True, True)
