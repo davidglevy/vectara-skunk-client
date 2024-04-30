@@ -55,7 +55,7 @@ when `Factory().build(...)` is invoked.:
 ### Home Location
 The factory by default will automatically seek configuration in the following locations:
 * On Linux based systems from within $HOME/.vec_auth.yaml
-* On Windows based systems from within %USERHOME%\.vec_auth.yaml
+* On Windows based systems from within %USERHOME%\\.vec_auth.yaml
 
 ### Configuration Format
 The configuration format should like below. You can define multiple configuration blocks. If not specified,
