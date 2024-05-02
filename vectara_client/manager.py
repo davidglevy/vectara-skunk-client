@@ -4,7 +4,7 @@ from vectara_client.core import Client
 from vectara_client.dao import ManagerDao, CorpusDao
 from vectara_client.admin import AdminService
 
-class VectaraManager():
+class DatabaseManager():
 
     def __init__(self,client:Client, dao:ManagerDao, corpusDao:CorpusDao, adminService:AdminService):
         self.logger = logging.getLogger(__class__.__name__)

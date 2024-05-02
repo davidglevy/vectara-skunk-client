@@ -1,7 +1,7 @@
 import unittest
 import logging
 from vectara_client.core import Factory
-from vectara_client.manager import VectaraManager
+from vectara_client.manager import DatabaseManager
 from vectara_client.dao import ManagerDao, CorpusDao
 
 import os
@@ -33,7 +33,7 @@ class VectaraManagerIntTest(unittest.TestCase):
         self.managerDao = ManagerDao()
         self.corpusDao = CorpusDao()
 
-        self.target = VectaraManager(client, self.managerDao, self.corpusDao, self.admin_service)
+        self.target = DatabaseManager(client, self.managerDao, self.corpusDao, self.admin_service)
 
     def test(self):
         # TODO Extract the manager from this project!!

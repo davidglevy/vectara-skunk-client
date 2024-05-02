@@ -6,6 +6,7 @@ from vectara_client.document import DocumentService
 from vectara_client.index import IndexerService
 from vectara_client.query import QueryService
 from vectara_client.util import RequestUtil
+from vectara_client.corpus import CorpusManager
 
 
 class Client:
@@ -13,7 +14,7 @@ class Client:
     def __init__(self, customer_id: str, admin_service: AdminService,
                  indexer_service: IndexerService, query_service: QueryService,
                  document_service: DocumentService,
-                 request_util: RequestUtil):
+                 request_util: RequestUtil, corpus_manager: CorpusManager):
         self.logging = logging.getLogger(self.__class__.__name__)
         logging.info("initializing Client")
         self.customer_id = customer_id
@@ -22,6 +23,7 @@ class Client:
         self.query_service = query_service
         self.document_service = document_service
         self.request_util = request_util
+        self.corpus_manager = corpus_manager
 
     def get_requests(self):
         return self.request_util.requests
@@ -90,6 +92,7 @@ class Factory():
         indexer_service = IndexerService(auth_util, request_util, int(client_config.customer_id))
         query_service = QueryService(request_util, int(client_config.customer_id))
         document_service = DocumentService(request_util)
+        corpus_manager = CorpusManager(admin_service)
 
         return Client(client_config.customer_id, admin_service, indexer_service, query_service, document_service,
-                      request_util)
+                      request_util, corpus_manager)
