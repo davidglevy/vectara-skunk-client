@@ -1,59 +1,107 @@
 import unittest
-import logging
-from vectara_client.core import Factory
-from vectara_client.domain import Corpus
-from test.util import loadTestConfigAsJson
-from dacite import from_dict
+from vectara_client.domain import FilterAttribute, FilterAttributeType, FilterAttributeLevel, ResponseSet
+from vectara_client.admin import CorpusBuilder
+from test.base import BaseClientTest
+from pathlib import Path
+from typing import List
+import time
 
-import os
 
-logging.basicConfig(
-format='%(levelname)-5s:%(name)-35s:%(message)s', level=logging.INFO
-)
+class FilterAttributeTest(BaseClientTest):
 
-class CorpusFilterAttributesIntTest(unittest.TestCase):
-
-    def __init__(self, methodName="runTest"):
-        super().__init__(methodName)
-        self.logger = logging.getLogger(__class__.__name__)
-        self.test_corpus_name = __class__.__name__
+    def _create_corpus_filter_attrs(self):
+        attrs = super()._create_corpus_filter_attrs()
+        customer_id_attr = FilterAttribute("customer_id", "Customers ID", True,
+                                           FilterAttributeType.FILTER_ATTRIBUTE_TYPE__TEXT,
+                                           FilterAttributeLevel.FILTER_ATTRIBUTE_LEVEL__DOCUMENT)
+        current_attr = FilterAttribute("current", "Whether the document is still current", True,
+                                       FilterAttributeType.FILTER_ATTRIBUTE_TYPE__BOOLEAN,
+                                       FilterAttributeLevel.FILTER_ATTRIBUTE_LEVEL__DOCUMENT)
+        attrs.extend([customer_id_attr, current_attr])
+        return attrs
 
     def setUp(self):
-        self.logger.info("Loading Vectara Client")
+        super().setUp()
 
-        test_config_json = loadTestConfigAsJson("admin")
+    def check_doc_ids(self, response: ResponseSet, expected_doc_ids:List[str]):
+        found_doc_ids = [doc.id for doc in response.document]
+        found_doc_ids.sort()
+        expected_doc_ids.sort()
+        self.assertEqual(expected_doc_ids, found_doc_ids, f"We were expecting [{expected_doc_ids}] but received [{found_doc_ids}]")
 
-        factory = Factory(config_json=test_config_json)
-        client = factory.build()
+    def test_filter_attr(self):
+        """
+        Runs multiple tests on metadata filter attributes.
 
-        self.admin_service = client.admin_service
-        self.indexer_service = client.indexer_service
+        This test uses additional filters on the corpus:
+        <ul>
+          <li><em>customer_id:</em> example of a customer Id str</li>
+          <li><em>current:</em> whether the record is current or archived - bool</li>
+        </ul>
 
-    def testWithFilterAttribute(self):
+        :return:
+        """
+        self.index_test_doc("./resources/filter_attributes/document_1.json")
+        self.index_test_doc("./resources/filter_attributes/document_2.json")
+        self.index_test_doc("./resources/filter_attributes/document_3.json")
+
+        qs = self.query_service
+
+        # Test with only customer Id
+        metadata_filter = "doc.customer_id = '1234'"
+        response = qs.query("Evatt", self.corpus_id, summary=False, metadata=metadata_filter)
+        self.check_doc_ids(response, ["doc-id-1", "doc-id-2"])
+
+        # Test with customer 1234 and current.
+        metadata_filter = "doc.customer_id = '1234' and doc.current"
+        response = qs.query("Evatt", self.corpus_id, summary=False, metadata=metadata_filter)
+        self.check_doc_ids(response, ["doc-id-1"])
+
+        # Test with unknown customer Id (not in corpus)
+        metadata_filter = "doc.customer_id = '9999'"
+        response = qs.query("Evatt", self.corpus_id, summary=False, metadata=metadata_filter)
+        self.check_doc_ids(response, [])
+
+        # Test with only current.
+        metadata_filter = "not doc.current"
+        response = qs.query("Evatt", self.corpus_id, summary=False, metadata=metadata_filter)
+        self.check_doc_ids(response, ["doc-id-2"])
+
+    def test_with_filter_attribute(self):
         # Split the test id by "." character, retrieve the last 2 parts (class/test-name) and rejoin with a hypen.
         # Then get the first 50 characters
-        corpus_name = ("-".join(self.id().split(".")[2:]))[0:50]
-        self.logger.info(f"We will run tests under corpus name [{corpus_name}]")
 
-        # Check if exists.
-        existing_corpora = self.admin_service.list_corpora(filter=corpus_name)
+        corpus = (CorpusBuilder(self.test_corpus_name)
+                  .add_attribute("category", "category of the document").build())
 
-        if len(existing_corpora) == 1:
-            self.logger.info(f"Deleting Existing Corpus [{self.test_corpus_name}]")
-            self.admin_service.delete_corpus(existing_corpora[0].id)
-
-        elif len(existing_corpora) > 1:
-            raise Exception("Unexpected test issue - found multiple test corpora")
-
-        attribute_dict = {"name": "category", "indexed": True, "type": "FILTER_ATTRIBUTE_TYPE__TEXT",
-                          "level": "FILTER_ATTRIBUTE_LEVEL__DOCUMENT"}
-        to_create = from_dict(Corpus, {"name": corpus_name, "filterAttributes": [attribute_dict]})
-
-        create_corpus_response = self.admin_service.create_corpus(to_create)
-        corpusId = create_corpus_response.corpusId
+        corpus_id = self.corpus_manager.create_corpus(corpus, delete_existing=True)
 
         ## Now lets upload the documents.
         doc_metadata = {"category": "blue"}
-        path = os.sep.join([".", "resources", "sigmod_photon.pdf"])
-        self.indexer_service.upload(corpusId, return_extracted=True, path=path, metadata=doc_metadata)
+        file_name = "sigmod_photon.pdf"
+        path = Path(f"resources/{file_name}")
+        self.indexer_service.upload(corpus_id, return_extracted=True, path=path, metadata=doc_metadata)
 
+        time.sleep(5)
+
+        # Check our document is present, lookup by ID.
+        documents = self.document_service.list_documents(corpus_id, metadata_filter=f"doc.id = '{file_name}'")
+        self.assertEqual(1, len(documents), "We were expecting our document to be present in the corpus")
+
+        # Positive check, with correct document id and category we get a result.
+        documents = self.document_service.list_documents(
+            corpus_id, metadata_filter=f"(doc.id = '{file_name}') and (doc.category = 'blue')")
+        self.assertEqual(1, len(documents), "We were expecting our document with the category to be returns")
+
+        # Negative test, without correct category we don't get our result
+        documents = self.document_service.list_documents(
+            corpus_id, metadata_filter=f"(doc.id = '{file_name}') and (doc.category = 'red')")
+        self.assertEqual(0, len(documents),
+                         "We were not expecting our document with the category red to be returned")
+
+
+
+
+
+if __name__ == '__main__':
+    unittest.main()
