@@ -13,7 +13,7 @@ class TestArabic(BaseClientTest):
         qs = self.query_service
 
         query = "Is it important to develop the Kingdom’s economy by increasing employment opportunities?"
-        resp = qs.query(query, self.corpus_id, summarizer="vectara_client-summary-ext-v1.3.0")
+        resp = qs.query(query, self.corpus_id, summarizer="vectara-summary-ext-v1.3.0")
 
         self.logger.info(render_markdown(query, resp))
 
@@ -21,7 +21,7 @@ class TestArabic(BaseClientTest):
         qs = self.query_service
 
         query = "Is it important to develop the Kingdom’s economy by increasing employment opportunities?"
-        resp = qs.query(query, self.corpus_id, summarizer="vectara_client-summary-ext-v1.3.0", response_lang="ar")
+        resp = qs.query(query, self.corpus_id, summarizer="vectara-summary-ext-v1.3.0", response_lang="ar")
 
         self.logger.info(render_markdown(query, resp, rtl=True))
 
@@ -42,7 +42,7 @@ class TestArabic(BaseClientTest):
         }
 
         query = "Is it important to develop the Kingdom’s economy by increasing employment opportunities?"
-        resp = qs.query(query, self.corpus_id, summarizer="vectara_client-summary-ext-v1.2.0",
+        resp = qs.query(query, self.corpus_id, summarizer="vectara-summary-ext-v1.2.0",
                         context_config=context_config)
 
         self.logger.info(render_markdown(query, resp))

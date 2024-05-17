@@ -31,8 +31,8 @@ class FilterAttributeLevel(Enum):
 class Dimension:
     name: str
     description: str
-    serving_default: str
-    indexing_default: str
+    serving_default: float
+    indexing_default: float
 
 
 @dataclass

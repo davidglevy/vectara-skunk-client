@@ -15,13 +15,12 @@ Tasks
 from vectara_client.authn import BaseAuthUtil
 from vectara_client.domain import UploadDocumentResponse, CoreDocument, IndexDocumentRequest, IndexDocumentResponse
 from vectara_client.util import RequestUtil
-from typing import Union
+from typing import Union, List
 from pathlib import Path
 from dacite import from_dict
 from dataclasses import asdict
 import logging
 import json
-
 
 class IndexerService:
     """
@@ -44,7 +43,7 @@ class IndexerService:
         self.customer_id = customer_id
         self.auth_util = auth_util
 
-    def index_doc(self, corpus_id: int, document: Union[dict, CoreDocument]):
+    def index_doc(self, corpus_id: int, document: Union[dict, CoreDocument]) -> IndexDocumentResponse:
         """
         Indexes the give document which is already in a format that is ready to be added to the embedding.
 
@@ -69,7 +68,6 @@ class IndexerService:
         result = self.request_util.request('index', payload, to_class=IndexDocumentResponse)
         return result
 
-
     def upload(self, corpus_id: int, path: Union[str, Path] = None, input_contents: bytes = None, input_file_name: str = None,
                return_extracted: bool = None, metadata: dict = None, ocr = False) -> UploadDocumentResponse:
         headers = {'c': str(self.customer_id), 'o': str(corpus_id)}
@@ -86,7 +84,6 @@ class IndexerService:
             params['doc_metadata'] = json.dumps(metadata)
 
         return self.request_util.multipart_post("upload", path_str=path, input_contents=input_contents, input_file_name=input_file_name, params=params, headers=headers)
-
 
     def delete(self, corpus_id: int, document_id: str):
         delete_request = {'customer_id': self.customer_id, 'corpus_id': corpus_id, 'document_id': document_id}

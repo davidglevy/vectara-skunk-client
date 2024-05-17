@@ -1,5 +1,5 @@
 import unittest
-from vectara_client.util import MarkdownFormatter, render_markdown
+from vectara_client.util import MarkdownFormatter, render_markdown, render_markdown_req
 from test.base import BaseClientTest
 from test.util import check_metadata
 

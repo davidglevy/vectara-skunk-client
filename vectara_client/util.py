@@ -9,6 +9,7 @@ from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 import logging
+import threading
 import json
 import requests
 import warnings
@@ -484,5 +485,28 @@ class ChatPromptFactory(BasePromptFactory):
         self.logger.info("Chat prompt is:\n" + result)
         return result
 
+
+class CountDownLatch:
+    def __init__(self, count=1):
+        self.count = count
+        self.lock = threading.Condition()
+
+    def count_down(self):
+        self.lock.acquire()
+        self.count -= 1
+        if self.count <= 0:
+            self.lock.notifyAll()
+        self.lock.release()
+
+    def sweat_it_out(self):
+        """
+        Because await is a keyword.
+
+        :return:
+        """
+        self.lock.acquire()
+        while self.count > 0:
+            self.lock.wait()
+        self.lock.release()
 
 

@@ -1,5 +1,19 @@
 from setuptools import setup
+import unittest
+import logging
+from unittest import TestSuite
 
+logging.basicConfig(format='%(asctime)s:%(name)-35s %(levelname)s:%(message)s', level=logging.INFO,
+                    datefmt='%H:%M:%S %z')
+
+logger = logging.getLogger(__name__)
+
+
+def my_test_suite():
+    test_loader = unittest.TestLoader()
+
+    test_suites = test_loader.discover('test', pattern='*_test.py')
+    return test_suites
 
 def get_long_desc() -> str:
     with open('README.md', 'r') as file_handle:
@@ -16,7 +30,7 @@ setup(
     description='Vectara Skunk Client',
     long_description=get_long_desc(),
     long_description_content_type='text/markdown',
-    version='0.4.31',
+    version='0.4.34',
     author='David Levy',
     author_email='david.g.levy@gmail.com',
     url='https://github.com/davidglevy/vectara-skunk-client',
@@ -36,5 +50,6 @@ setup(
         'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: 3.12',
         'Topic :: Utilities'
-    ]
+    ],
+    test_suite='setup.my_test_suite'
 )

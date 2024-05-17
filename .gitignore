@@ -10,3 +10,7 @@ test.db
 build
 dist
 vectara_skunk_client.egg-info
+
+# Packaging files
+vectara_client_skunk_client.egg-info
+.eggs

@@ -1,7 +1,7 @@
 import logging
 from abc import ABC
 from dataclasses import dataclass
-from dacite import from_dict, Config, UnexpectedDataError
+from dacite import from_dict, Config, UnexpectedDataError, UnionMatchError
 from typing import Optional, Union, Any
 import json
 import yaml
@@ -79,8 +79,16 @@ def loadConfig(config: str) -> ClientConfig:
     """
     logger.info(f"Loading config from {config}")
 
-    config_dict = json.loads(config)
+    try:
+        config_dict = json.loads(config)
 
+
+
+        return from_dict(ClientConfig, config_dict, config=Config(strict=True))
+    except UnionMatchError as e:
+        raise TypeError(e)
+    except UnexpectedDataError as e:
+        raise TypeError(e)
 
 class BaseConfigLoader(ABC):
     CONFIG_FILE_NAME = ".vec_auth.yaml"

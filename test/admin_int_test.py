@@ -9,7 +9,7 @@ class AdminServiceIntTest(BaseClientTest):
     #    super().setUp()
 
     def testListCorpora(self):
-        corpora = self.adminService.list_corpora()
+        corpora = self.admin_service.list_corpora()
         for corpus in corpora:
             print(f"We found id [{corpus.id}] with name [{corpus.name}]")
 
@@ -20,8 +20,9 @@ class AdminServiceIntTest(BaseClientTest):
 
         print("We found corpus [{corpus.}]")
 
+    # TODO Move this into document_test
     def testListDocuments(self):
-        self.admin_service.list_documents(6)
+        self.document_service.list_documents(self.corpus_id)
 
     def test_corpus_builder(self):
         builder = CorpusBuilder("test_car_corpus")

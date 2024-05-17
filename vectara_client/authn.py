@@ -9,14 +9,19 @@ import traceback
 from abc import ABC
 
 # TODO This should be discovered from the console
+# TODO Change this file to authc.py!!
 DEFAULT_OAUTH2_URL = "https://vectara-prod-{customer_id}.auth.us-west-2.amazoncognito.com/oauth2/token"
 
 logger = logging.getLogger(__name__)
+
 
 class BaseAuthUtil(ABC):
 
     def get_headers(self) -> dict:
         raise NotImplementedError("You must implement this on a subclass")
+
+    def authenticate(self):
+        pass
 
 class OAuthUtil(BaseAuthUtil):
 
@@ -59,7 +64,6 @@ class OAuthUtil(BaseAuthUtil):
         self.expires_in = None
         self.expires_at = None
         self.access_token = None
-
 
     def authenticate(self):
         """Connect to the server and get a JWT token."""

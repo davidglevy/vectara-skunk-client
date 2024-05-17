@@ -4,8 +4,10 @@ from vectara_client.core import Factory, Client
 from vectara_client.domain import (FilterAttribute, FilterAttributeType, FilterAttributeLevel, UploadDocumentResponse,
                                    IndexDocumentResponse)
 from vectara_client.query import QueryService
-from vectara_client.admin import AdminService
+from vectara_client.admin import AdminService, CorpusBuilder
 from vectara_client.index import IndexerService
+from vectara_client.document import DocumentService
+from vectara_client.corpus import CorpusManager
 
 from typing import Union
 from pathlib import Path
@@ -42,6 +44,7 @@ class BaseClientTest(TestCase):
     query_service: QueryService
     admin_service: AdminService
     indexer_service: IndexerService
+    document_service: DocumentService
     corpus_id: int
     test_corpus_name: str
 
@@ -76,33 +79,19 @@ class BaseClientTest(TestCase):
         self.admin_service = self.client.admin_service
         self.indexer_service = self.client.indexer_service
         self.query_service = self.client.query_service
+        self.document_service = self.client.document_service
+        self.corpus_manager = self.client.corpus_manager
 
-        # TODO If environ flag "rebuild" is set to true, delete existing test corpora and re-create.
-        # Check if test corpus exists
-        corpora = self.admin_service.list_corpora(self.test_corpus_name)
+        description = self.shortDescription()
+        if not description:
+          description = "Corpus to support test. TODO - set docstring in test for more informative text."
 
-        # First do a filter on exact name in case any tests use similar names.
-        corpora = list(filter(lambda corpus: corpus.name == self.test_corpus_name, corpora))
+        test_corpus = (CorpusBuilder(self.test_corpus_name)
+                       .description(description)
+                       .build())
+        test_corpus.filterAttributes = self._create_corpus_filter_attrs()
 
-        #    # TODO temporarily ignore this option.
-        if len(corpora) == 1:
-            self.logger.info("Found existing test corpus")
-            self.corpus_id = corpora[0].id
-        #    self.logger.info("TODO - DELETE, temporarily deleting corpora through each run.")
-        #    self.admin_service.delete_corpus(corpora[0].id)
-        elif len(corpora) > 1:
-            # TODO Rework logic so we can support tests with multiple corpus
-            raise Exception("Unexpected configuration - multiple matching corpora for test name.")
-        else:
-            # Create new corpora
-            description = self.shortDescription()
-            if not description:
-                description = "Corpus to support test. TODO - set docstring in test for more informative text."
-
-            resp = self.admin_service.create_corpus(name=self.test_corpus_name,
-                                             description=description,
-                                             filter_attributes=self._create_corpus_filter_attrs())
-            self.corpus_id = resp.corpusId
+        self.corpus_id = self.corpus_manager.create_corpus(test_corpus, delete_existing=True)
 
     def upload_test_doc(self, doc_name:str, force=False, metadata:dict=None) -> Union[UploadDocumentResponse, None]:
         """

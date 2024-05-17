@@ -92,7 +92,7 @@ class Factory():
         indexer_service = IndexerService(auth_util, request_util, int(client_config.customer_id))
         query_service = QueryService(request_util, int(client_config.customer_id))
         document_service = DocumentService(request_util)
-        corpus_manager = CorpusManager(admin_service)
+        corpus_manager = CorpusManager(admin_service, indexer_service)
 
         return Client(client_config.customer_id, admin_service, indexer_service, query_service, document_service,
                       request_util, corpus_manager)

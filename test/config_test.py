@@ -1,12 +1,17 @@
 import unittest
 import logging
-from vectara_client.config import ApiKeyAuthConfig, loadConfig
+from vectara_client.config import ApiKeyAuthConfig, JsonConfigLoader, loadConfig
+from dacite import UnexpectedDataError, UnionMatchError
+import json
 
 logging.basicConfig(
         format=logging.BASIC_FORMAT, level=logging.INFO)
 
 
 class ClientConfigTest(unittest.TestCase):
+
+
+
     def testLoadConfigApiKeyConfig(self):
 
         customer_id = "12344"
@@ -19,7 +24,8 @@ class ClientConfigTest(unittest.TestCase):
             }}
         }}"""
 
-        result = loadConfig(config_dict)
+        config_loader = JsonConfigLoader(config_json=config_dict)
+        result = config_loader.load()
 
         self.assertEqual(result.customer_id, customer_id)
         self.assertIsInstance(result.auth, ApiKeyAuthConfig)
@@ -39,7 +45,8 @@ class ClientConfigTest(unittest.TestCase):
         }}"""
 
         with self.assertRaises(TypeError) as cm:
-            loadConfig(config_dict)
+            config_loader = JsonConfigLoader(config_json=config_dict)
+            config_loader.load()
 
         message = str(cm.exception)
         self.assertIn('Could not use polymorphism to cast auth to either OAuth2 or API Key config', message)
@@ -58,7 +65,8 @@ class ClientConfigTest(unittest.TestCase):
         }}"""
 
         with self.assertRaises(TypeError) as cm:
-            loadConfig(config_dict)
+            config_loader = JsonConfigLoader(config_json=config_dict)
+            config_loader.load()
 
         message = str(cm.exception)
         self.assertIn('can not match "extra_field" to any data class field', message)
@@ -73,12 +81,14 @@ class ClientConfigTest(unittest.TestCase):
         config_dict = f"""{{
             "customer_id" : "{customer_id}",
             "auth" : {{
-                "app_id" : "{app_id}",
+                "app_client_id" : "{app_id}",
                 "app_client_secret" : "{app_api_secret}"
             }}
         }}"""
 
-        result = loadConfig(config_dict)
+        # Put a dummy value in for the config_json
+        config_loader = JsonConfigLoader(config_json=config_dict)
+        result = config_loader.load()
 
     def testLoadConfigOAuth2ValidUrl(self):
 
@@ -89,14 +99,16 @@ class ClientConfigTest(unittest.TestCase):
         config_dict = f"""{{
             "customer_id" : "{customer_id}",
             "auth" : {{
-                "app_id" : "{app_id}",
+                "app_client_id" : "{app_id}",
                 "app_client_secret" : "{app_api_secret}",
                 "auth_url" : "https://some.url/"
                 
             }}
         }}"""
 
-        result = loadConfig(config_dict)
+        # Put a dummy value in for the config_json
+        config_loader = JsonConfigLoader(config_json=config_dict)
+        result = config_loader.load()
 
         print(result)
 
@@ -108,7 +120,7 @@ class ClientConfigTest(unittest.TestCase):
         config_dict = f"""{{
             "customer_id" : "{customer_id}",
             "auth" : {{
-                "app_id" : "{app_id}",
+                "app_client_id" : "{app_id}",
                 "app_client_secret" : "{app_api_secret}",
                 "auth_url" : "https://some.url/",
                 "what_the" : "should_throw_error"
@@ -117,7 +129,9 @@ class ClientConfigTest(unittest.TestCase):
         }}"""
 
         with self.assertRaises(TypeError) as cm:
-            result = loadConfig(config_dict)
+            # Put a dummy value in for the config_json
+            config_loader = JsonConfigLoader(config_json=config_dict)
+            config_loader.load()
 
         message = str(cm.exception)
         self.assertIn('Could not use polymorphism to cast auth to either OAuth2 or API Key config', message)
@@ -136,7 +150,9 @@ class ClientConfigTest(unittest.TestCase):
         }}"""
 
         with self.assertRaises(TypeError) as cm:
-            result = loadConfig(config_dict)
+            # Put a dummy value in for the config_json
+            config_loader = JsonConfigLoader(config_json=config_dict)
+            result = config_loader.load()
 
         message = str(cm.exception)
         self.assertIn('Could not use polymorphism to cast auth to either OAuth2 or API Key config', message)
