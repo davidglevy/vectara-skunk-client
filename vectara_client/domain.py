@@ -395,9 +395,45 @@ class BatchQueryResponse:
     status: List[Status]
     metrics: Optional[PerformanceMetrics]
 
+@dataclass
+class CoreIndexDocumentPart:
+    text: str
+    context: Optional[str]
+    metadata_json: Optional[str]
+    custom_dims: Optional[List[CustomDimension]]
 
 @dataclass
-class CoreDocumentPart:
+class CoreIndexDocument:
+    document_id: str
+    metadata_json: Optional[str]
+    parts: List[CoreIndexDocumentPart]
+
+@dataclass
+class CoreIndexDocumentRequest:
+    """
+    See core_services.proto
+    """
+    customer_id: int
+    corpus_id: int
+    document: CoreIndexDocument
+
+@dataclass
+class CoreIndexDocumentResponse:
+    """
+    See core_services.proto
+    """
+    status: Status
+    quotaConsumed: Optional[StorageQuota]
+
+    def __post_init__(self):
+        """
+        Funky behavior to clear the status if it doesn't have a code
+        """
+        if not self.status.code:
+            self.__setattr__("status", None)
+
+@dataclass
+class DocumentSection:
     text: Optional[str]
     context: Optional[str]
     metadata_json: Optional[str]
@@ -405,14 +441,14 @@ class CoreDocumentPart:
 
 
 @dataclass
-class CoreDocument:
+class IndexDocument:
     """
     Something odd
     """
     document_id: str
     title: str
     metadata_json: Optional[str]
-    section: Optional[List[CoreDocumentPart]]
+    section: Optional[List[DocumentSection]]
     # default_part_context: Optional[str]
     custom_dims: Optional[List[CustomDimension]]
 
@@ -424,7 +460,7 @@ class IndexDocumentRequest:
     """
     customer_id: int
     corpus_id: int
-    document: CoreDocument
+    document: IndexDocument
 
 
 @dataclass
@@ -497,7 +533,7 @@ class ListDocumentItem:
 @dataclass
 class DocumentDTO:
     id: str
-    metadata: dict[str, Union[str, int, float, bool]]
+    metadata: dict[str, Union[str, int, float, bool, List[str]]]
 
 
 @dataclass

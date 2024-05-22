@@ -13,7 +13,9 @@ Tasks
 * TODO Investigate whether I need the lower level API too
 """
 from vectara_client.authn import BaseAuthUtil
-from vectara_client.domain import UploadDocumentResponse, CoreDocument, IndexDocumentRequest, IndexDocumentResponse
+from vectara_client.domain import (UploadDocumentResponse, IndexDocumentRequest, IndexDocumentResponse,
+                                   IndexDocument, CoreIndexDocumentRequest, CoreIndexDocument,
+                                   CoreIndexDocumentResponse)
 from vectara_client.util import RequestUtil
 from typing import Union, List
 from pathlib import Path
@@ -43,7 +45,7 @@ class IndexerService:
         self.customer_id = customer_id
         self.auth_util = auth_util
 
-    def index_doc(self, corpus_id: int, document: Union[dict, CoreDocument]) -> IndexDocumentResponse:
+    def index_doc(self, corpus_id: int, document: Union[dict, IndexDocument]) -> IndexDocumentResponse:
         """
         Indexes the give document which is already in a format that is ready to be added to the embedding.
 
@@ -56,7 +58,7 @@ class IndexerService:
         """
         # Convert singular int to List of corpus ids.
         if type(document) is dict:
-            domain = from_dict(CoreDocument, document)
+            domain = from_dict(IndexDocument, document)
         else:
             domain = document
 
@@ -67,6 +69,33 @@ class IndexerService:
 
         result = self.request_util.request('index', payload, to_class=IndexDocumentResponse)
         return result
+
+    def index_core_doc(self, corpus_id: int, document: Union[dict, CoreIndexDocument]) -> CoreIndexDocumentResponse:
+        """
+        Indexes the give document which is already in a format that is ready to be added to the embedding.
+
+        It is worth noting that this API can either take a dict or a CoreDocument, however the dict will
+        be validated against the CoreDocument schema.
+
+        :param corpus_id: the corpus to put the document in
+        :param document: either a dict which will be validated against CoreDocument, or a CoreDocument.
+        :return:
+        """
+        # Convert singular int to List of corpus ids.
+        if type(document) is dict:
+            domain = from_dict(CoreIndexDocument, document)
+        else:
+            domain = document
+
+        # Now Convert back to dict, knowing that our parameter is type safe.
+        # FIXME Ask Tallat why the customer ID for this API is an integer (unexpected)
+        request = CoreIndexDocumentRequest(int(self.customer_id), corpus_id, domain)
+        payload = asdict(request)
+
+        result = self.request_util.request('core/index', payload, to_class=CoreIndexDocumentResponse)
+        return result
+
+
 
     def upload(self, corpus_id: int, path: Union[str, Path] = None, input_contents: bytes = None, input_file_name: str = None,
                return_extracted: bool = None, metadata: dict = None, ocr = False) -> UploadDocumentResponse:
@@ -84,6 +113,7 @@ class IndexerService:
             params['doc_metadata'] = json.dumps(metadata)
 
         return self.request_util.multipart_post("upload", path_str=path, input_contents=input_contents, input_file_name=input_file_name, params=params, headers=headers)
+
 
     def delete(self, corpus_id: int, document_id: str):
         delete_request = {'customer_id': self.customer_id, 'corpus_id': corpus_id, 'document_id': document_id}

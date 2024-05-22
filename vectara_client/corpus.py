@@ -1,6 +1,6 @@
 from vectara_client.admin import AdminService
 from vectara_client.index import IndexerService
-from vectara_client.domain import Corpus, CoreDocument
+from vectara_client.domain import Corpus, IndexDocument
 from vectara_client.util import CountDownLatch
 from typing import List, Union
 from threading import Thread
@@ -32,6 +32,39 @@ class SubIndexer:
         for doc in self.docs:
             try:
                 result = self.indexer_service.index_doc(self.corpus_id, doc)
+
+            except Exception as e:
+                # Ignore for lab
+                self.logger.error("Error: {e}")
+        self.logger.info(f"Worker [{self.thread_index}] Finished our indexer requests")
+        self.latch.count_down()
+
+class SubCoreIndexer:
+    """
+        Class designed to be used inside a thread to run multiple indexing requests and track completions.
+    """
+
+    def __init__(self, indexer_service: IndexerService, corpus_id: int, latch: CountDownLatch, thread_index: int):
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+        self.indexer_service = indexer_service
+        self.corpus_id = corpus_id
+        self.latch = latch
+        self.thread_index = thread_index
+
+        self.docs = []
+        self.results = []
+
+    def add_doc(self, doc):
+        self.docs.append(doc)
+
+    def index_docs(self):
+        # TODO Handle success and failure into results array
+        self.logger.info(f"Worker [{self.thread_index}] Starting our [{len(self.docs)}] indexer requests")
+
+        for doc in self.docs:
+            try:
+                result = self.indexer_service.index_core_doc(self.corpus_id, doc)
 
             except Exception as e:
                 # Ignore for lab
@@ -136,7 +169,7 @@ class CorpusManager:
 
 
 
-    def batch_index(self, corpus_id:int, documents: List[Union[dict, CoreDocument]], threads:int=10) -> List[any]:
+    def batch_index(self, corpus_id:int, documents: List[Union[dict, IndexDocument]], threads:int=10) -> List[any]:
         self.logger.info(f"Performing parallel [{threads}] document indexing requests")
 
         # Create our countdown latch
@@ -158,6 +191,28 @@ class CorpusManager:
 
         # TODO Extract results from each sub-indexer into a final result array and return it.
 
+    def batch_core_index(self, corpus_id:int, documents: List[Union[dict, IndexDocument]],
+                         threads: int = 10) -> List[any]:
+        self.logger.info(f"Performing parallel [{threads}] document indexing requests")
 
+        # Create our countdown latch
+        latch = CountDownLatch(threads)
+
+        # Create sub-indexers for each thread
+        sub_indexers = [SubCoreIndexer(self.indexer_service, corpus_id, latch, thread_index)
+                        for thread_index in range(threads)]
+
+        for index, doc in enumerate(documents):
+            thread_index = index % threads
+            sub_indexers[thread_index].add_doc(doc)
+
+        for sub_indexer in sub_indexers:
+            thread = Thread(target=sub_indexer.index_docs)
+            thread.start()
+
+        # Wait for completion.
+        latch.sweat_it_out()
+
+        # TODO Extract results from each sub-indexer into a final result array and return it.
 
 

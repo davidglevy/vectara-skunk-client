@@ -6,6 +6,7 @@ from typing import Union
 from datetime import datetime
 import unittest
 import logging
+import json
 
 import os
 
@@ -111,7 +112,67 @@ class CorpusManagerTest(unittest.TestCase):
             last_time = current_time
 
 
+    def test_batch_core_index(self):
+        corpus = (CorpusBuilder(self.CORPUS_NAME).description("Test CorpusManager functions").build())
 
+        manager = self.client.corpus_manager
+        corpus_id = manager.create_corpus(corpus)
+
+        documents = []
+
+        # Increase this for "bigger" test.
+        for x in range(20):
+            metadata = {
+                "author": "David Levy"
+            }
+            metadata_json = json.dumps(metadata)
+
+            title_metadata = {
+                "is_title": True
+            }
+            title_metadata_json = json.dumps(title_metadata)
+
+            core_document = {
+                "document_id": f"test_core_doc_{x}",
+                "metadata_json": metadata_json,
+                "parts": [
+                    {
+                        "text": "The Giant Race",
+                        "metadata_json": title_metadata_json
+                    },
+                    {
+                        "text": "The giants decided to have a race. They would race over the castle and around the dragon."
+                    }
+                ]
+            }
+            documents.append(core_document)
+
+
+        # Uncomment this for a higher stress test.
+        #thread_counts = [1, 2, 5, 10, 20, 50]
+        thread_counts = [1, 2, 5, 10]
+
+        times = []
+
+        for thread_count in thread_counts:
+            tick = datetime.now()
+
+            # run the tests here
+            # First test with 1
+            manager.batch_core_index(corpus_id, documents, threads=thread_count)
+            tock = datetime.now()
+            diff = tock - tick  # the result is a datetime.timedelta object
+            difference_ms = int(diff.total_seconds() * 1000)
+            times.append({"thread_count": thread_count, "time_ms": difference_ms})
+
+        last_time: Union[None, int] = None
+        for time in times:
+            current_time = time['time_ms']
+            thread_count = time['thread_count']
+            self.logger.info(f"For thread count of [{thread_count}], time taken was [{current_time}] milliseconds")
+            if last_time:
+                self.assertGreater(last_time, current_time)
+            last_time = current_time
 
 
 

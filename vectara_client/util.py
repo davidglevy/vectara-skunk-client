@@ -69,6 +69,9 @@ class RequestUtil:
         response = requests.request(method, url, headers=headers, data=payload_json)
 
         if response.status_code == 200:
+            if self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(f"Response was:\n{json.dumps(json.loads(response.text), indent=4)}")
+
             if to_class:
                 return from_dict(to_class, json.loads(response.text))
             elif response.text:
@@ -495,7 +498,7 @@ class CountDownLatch:
         self.lock.acquire()
         self.count -= 1
         if self.count <= 0:
-            self.lock.notifyAll()
+            self.lock.notify_all()
         self.lock.release()
 
     def sweat_it_out(self):
