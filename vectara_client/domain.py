@@ -184,7 +184,6 @@ class CustomDimension:
     name: str
     value: float
 
-
 @dataclass
 class Section:
     id: Optional[int]
@@ -237,7 +236,7 @@ class QueryContextConfig:
 @dataclass
 class QueryDim:
     name: str
-    weight: int
+    weight: float
 
 
 class Semantics(Enum):
@@ -256,7 +255,7 @@ class CorpusKey:
     corpusId: int
     customerId: Optional[int]
     semantics: Optional[str | Semantics]
-    dim: Optional[List[CustomDimension]]
+    dim: Optional[List[QueryDim]]
     metadataFilter: Optional[str]
     lexicalInterpolationConfig: Optional[LinearInterpolation]
 
