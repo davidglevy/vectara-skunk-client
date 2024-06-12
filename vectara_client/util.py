@@ -50,6 +50,7 @@ class RequestUtil:
         :param payload: the payload which will be serialized.
         :return:
         """
+
         headers = self.auth_util.get_headers()
         headers['Content-Type'] = 'application/json'
         headers['Accept'] = 'application/json'

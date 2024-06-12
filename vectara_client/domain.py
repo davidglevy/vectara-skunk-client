@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import List, Optional, Union
 from enum import Enum
 from vectara_client.status import Status
@@ -76,6 +77,7 @@ class ListCorpusResponse:
     corpus: List[Corpus]
     pageKey: str
     status: Optional[Status]
+
 
 @dataclass
 class ReadCorpusRequest:
@@ -190,7 +192,7 @@ class Section:
     text: Optional[str]
     metadataJson: Optional[str]
     customDims: Optional[List[CustomDimension]]
-    section: Optional[List['Section']]
+    section: Optional[List[Section]]
 
 
 @dataclass
@@ -246,7 +248,7 @@ class Semantics(Enum):
 
 @dataclass
 class LinearInterpolation:
-    _lambda: Optional[float]  # Unfortunately Python dataclass attributes cannot be reserved words.
+    _lambda: Union[float, None]  # Unfortunately Python dataclass attributes cannot be reserved words.
 
 
 @dataclass
@@ -288,15 +290,18 @@ class RerankingConfig:
     rerankerId: int
     mmrConfig: Optional[MMRConfig]
 
+
 @dataclass
 class ModelParams:
     maxTokens: Optional[int]
     temperature: Optional[float]
 
-    # provides even more granular control to help ensure that the summarization decreases the likelihood of repeating words. The values range from 0.0 to 1.0
+    # provides even more granular control to help ensure that the summarization decreases the likelihood
+    # of repeating words. The values range from 0.0 to 1.0
     frequencyPenalty: Optional[float]
 
-    # provides more control over whether you want the summary to include new topics. The values also range from 0.0 to 1.0.
+    # provides more control over whether you want the summary to include new topics. The values
+    # also range from 0.0 to 1.0.
     presencePenalty: Optional[float]
 
 
@@ -356,12 +361,14 @@ class ResponseDocument:
     id: str
     metadata: List[Attribute]
 
+
 @dataclass
 class ChatResponse:
     conversationId: str
     turnId: Optional[str]
     rephrasedQuery: Optional[str]
     status: Optional[Status]
+
 
 @dataclass
 class SummaryResponse:
@@ -395,6 +402,7 @@ class BatchQueryResponse:
     status: List[Status]
     metrics: Optional[PerformanceMetrics]
 
+
 @dataclass
 class CoreIndexDocumentPart:
     text: str
@@ -402,11 +410,13 @@ class CoreIndexDocumentPart:
     metadata_json: Optional[str]
     custom_dims: Optional[List[CustomDimension]]
 
+
 @dataclass
 class CoreIndexDocument:
     document_id: str
     metadata_json: Optional[str]
     parts: List[CoreIndexDocumentPart]
+
 
 @dataclass
 class CoreIndexDocumentRequest:
@@ -416,6 +426,7 @@ class CoreIndexDocumentRequest:
     customer_id: int
     corpus_id: int
     document: CoreIndexDocument
+
 
 @dataclass
 class CoreIndexDocumentResponse:
@@ -432,12 +443,13 @@ class CoreIndexDocumentResponse:
         if not self.status.code:
             self.__setattr__("status", None)
 
+
 @dataclass
 class DocumentSection:
     text: Optional[str]
     context: Optional[str]
     metadata_json: Optional[str]
-    custom_dims: Optional[List[CustomDimension]]
+    section: List[DocumentSection]
 
 
 @dataclass
@@ -529,6 +541,7 @@ class ListApiKeysResponse:
 class ListDocumentItem:
     id: str
     metadata: Optional[List[Attribute]]
+
 
 @dataclass
 class DocumentDTO:

@@ -65,10 +65,11 @@ class SubCoreIndexer:
         for doc in self.docs:
             try:
                 result = self.indexer_service.index_core_doc(self.corpus_id, doc)
-
+                self.results.append({"result": result})
             except Exception as e:
                 # Ignore for lab
-                self.logger.error("Error: {e}")
+                self.logger.error(f"Error: {e}")
+                self.results.append({"error": e})
         self.logger.info(f"Worker [{self.thread_index}] Finished our indexer requests")
         self.latch.count_down()
 

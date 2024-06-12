@@ -28,9 +28,10 @@ class QueryService():
     def query(self, query_text: str, corpus_id: Union[int, List[int]], start: int = 0, page_size: int = 10,
               summary: bool = True, response_lang: str = 'en', context_config=None, semantics='DEFAULT',
               promptText=None, metadata: str = None, summarizer: str = "vectara-summary-ext-v1.2.0",
-              summary_result_count=5, re_rank=False, custom_dimensions:List[dict]=None, _lambda=0.025,
-              temperature=None, debug: bool = None, chat=False, conversation_id:str=None,
-              query_context: str=""):
+              summary_result_count=5, re_rank=False, re_ranker=272725718, custom_dimensions: List[dict] = None,
+              _lambda=0.025,
+              temperature=None, debug: bool = None, chat=False, conversation_id: str = None,
+              query_context: str = ""):
 
         # Convert singular int to List of corpus ids.
         if type(corpus_id) is list:
@@ -70,12 +71,19 @@ class QueryService():
             'corpusKey': corpus_keys
         }
 
-        if re_rank:
-            query_dict['rerankingConfig'] = {
+        if re_rank and re_ranker == 272725718:
+            reranking_config = {
                 "rerankerId": 272725718,
                 "mmrConfig": {
                     "diversityBias": 0.3
                 }
+
+            }
+
+            query_dict['rerankingConfig'] = reranking_config
+        elif re_rank:
+            query_dict['rerankingConfig'] = {
+                "rerankerId": re_ranker
             }
 
         if summary:
@@ -109,8 +117,6 @@ class QueryService():
         else:
             # Only put this in if we're not summarising.
             query_dict['start']: start
-
-
 
         batch_query_dict = {'query': [query_dict]}
 
