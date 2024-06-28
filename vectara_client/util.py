@@ -143,7 +143,7 @@ class RequestUtil:
                                 encoder, lambda monitor: bar.update(monitor.bytes_read - bar.n)
                             )
 
-                            response = requests.post(upload_url, data=m, headers=headers)
+                            response = requests.post(upload_url, data=m, headers=headers, timeout=120)
 
                             if response.status_code == 200:
                                 return from_dict(UploadDocumentResponse, json.loads(response.text))
