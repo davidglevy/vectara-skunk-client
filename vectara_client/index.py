@@ -97,7 +97,7 @@ class IndexerService:
 
 
 
-    def upload(self, corpus_id: int, path: Union[str, Path] = None, input_contents: bytes = None, input_file_name: str = None,
+    def upload(self, corpus_id: int, path: Union[str, Path] = None, input_contents: bytes = None, filename_override: str = None,
                return_extracted: bool = None, metadata: dict = None, ocr = False) -> UploadDocumentResponse:
         headers = {'c': str(self.customer_id), 'o': str(corpus_id)}
         self.logger.info(f"Headers: {json.dumps(headers)}")
@@ -112,7 +112,7 @@ class IndexerService:
         if metadata:
             params['doc_metadata'] = json.dumps(metadata)
 
-        return self.request_util.multipart_post("upload", path_str=path, input_contents=input_contents, input_file_name=input_file_name, params=params, headers=headers)
+        return self.request_util.multipart_post("upload", path_str=path, input_contents=input_contents, filename_override=filename_override, params=params, headers=headers)
 
 
     def delete(self, corpus_id: int, document_id: str):

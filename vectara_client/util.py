@@ -85,7 +85,7 @@ class RequestUtil:
             response.raise_for_status()
 
     def multipart_post(self, operation: str, path_str: str = None, input_contents: bytes = None,
-                       input_file_name: str = None,
+                       filename_override: str = None,
                        params=None, headers=None) -> UploadDocumentResponse:
 
         # Create headers, taking in any from the particular method.
@@ -101,12 +101,14 @@ class RequestUtil:
         upload_url = f"https://api.vectara.io/v1/{operation}"
 
         files = None
-        if path_str and input_file_name:
-            raise TypeError("You must specify either the path or the file_name")
-        elif path_str:
+        if path_str:
             path = Path(path_str)
             tracker_total_size = path.stat().st_size
-            tracker_file_name = path.name
+
+            if filename_override:
+                tracker_file_name = filename_override
+            else:
+                tracker_file_name = path.name
 
             with warnings.catch_warnings():
                 """
@@ -149,8 +151,8 @@ class RequestUtil:
                                 self.logger.error(f"Received non 200 response {response.status_code}: {response.text}")
                                 response.raise_for_status()
 
-        elif input_file_name:
-            raise Exception("Re-implement after refactor")
+        else:
+            raise Exception("You must supply a filename")
             # files={'file': (input_file_name, input_contents), 'c': self.customer_id, 'o': corpus_id}
 
 
