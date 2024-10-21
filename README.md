@@ -1,4 +1,10 @@
-# vectara-skunk-client
+# Do Not Use #
+This code has been **deprecated** in favour of the FERN generated SDKs for Python and Typescript:
+
+* [TypeScript-SDK](https://github.com/vectara/typescript-sdk) 
+* [Python-SDK](https://github.com/vectara/python-sdk)
+
+# vectara-skunk-client (Deprecated)
 A Python SDK for Vectara written by the field to help you add GenerativeAI to your applications
 without needing to hire a Data Scientist. It helps you work with a Corpus and add documents
 to your Retrieval Augmented Generation (RAG) pipeline.
